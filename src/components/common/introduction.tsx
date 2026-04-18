@@ -1,5 +1,5 @@
 import ArrowAnimation from 'assets/animation/arrow.json'
-import SuccessAnimation from 'assets/animation/Chatbot.json'
+import ChatbotAnimation from 'assets/animation/Chatbot.json'
 import NyanCatAnimation from 'assets/animation/nyancat.json'
 import RocketAnimation from 'assets/animation/rocket.json'
 import Morty from 'assets/images/morty.gif'
