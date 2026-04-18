@@ -1,5 +1,4 @@
 aestetik.png
-al-q.png
 bdd-summary.png
 crealoka-summary.png
 dicoding-elit-summary.png

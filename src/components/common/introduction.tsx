@@ -8,7 +8,7 @@ import { CursorContext } from 'context/cursor'
 import { StateContext } from 'context/state'
 import { AnimatePresence, animate, motion, useMotionValue, useTransform } from 'framer-motion'
 import { useContext, useEffect, useRef, useState } from 'react'
-import Lottie from 'react-lottie'
+import Lottie from 'lottie-react'
 
 const waitingToStart = 1500
 const percentCount = 100
@@ -38,53 +38,37 @@ const variants = {
   }
 }
 
-const defaultOptions = {
-  loop: true,
-  autoplay: true,
-  rendererSettings: {
-    preserveAspectRatio: 'xMidYMid slice'
-  }
-}
-
 const paragraph = [
   <div className="flex items-center" key="front-enddeveloper">
     fullstack developer
     <Lottie
-      options={{ ...defaultOptions, animationData: RocketAnimation }}
-      height={100}
-      width={100}
-      isClickToPauseDisabled
-      style={{ cursor: 'default' }}
+      animationData={RocketAnimation}
+      loop={true}
+      style={{ width: 100, height: 100, cursor: 'default' }}
     />
   </div>,
   <div className="flex items-center" key="laughinglayouts">
     laughing @layouts!
     <Lottie
-      options={{ ...defaultOptions, animationData: NyanCatAnimation }}
-      height={50}
-      width={50}
-      isClickToPauseDisabled
-      style={{ marginLeft: '1rem', cursor: 'default' }}
+      animationData={NyanCatAnimation}
+      loop={true}
+      style={{ width: 50, height: 50, marginLeft: '1rem', cursor: 'default' }}
     />
   </div>,
   <div className="flex items-center" key="designingdreams">
     designing dreams
     <Lottie
-      options={{ ...defaultOptions, animationData: SuccessAnimation }}
-      height={80}
-      width={80}
-      isClickToPauseDisabled
-      style={{ marginLeft: '1rem', cursor: 'default', marginBottom: '2rem' }}
+      animationData={SuccessAnimation}
+      loop={true}
+      style={{ width: 80, height: 80, marginLeft: '1rem', cursor: 'default', marginBottom: '2rem' }}
     />
   </div>,
   <div className="flex items-center" key="galvinalfito">
     Galvin Alfito D
     <Lottie
-      options={{ ...defaultOptions, animationData: ArrowAnimation }}
-      height={50}
-      width={100}
-      isClickToPauseDisabled
-      style={{ marginLeft: '1rem', cursor: 'default', marginTop: '2rem' }}
+      animationData={ArrowAnimation}
+      loop={true}
+      style={{ width: 100, height: 50, marginLeft: '1rem', cursor: 'default', marginTop: '2rem' }}
     />
   </div>
 ]

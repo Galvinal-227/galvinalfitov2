@@ -8,7 +8,7 @@ export default function SectionFrontendDev() {
   const [hoveredItem, setHoveredItem] = useState(null);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
 
-  const handleMouseMove = (e) => {
+  const handleMouseMove = (e: React.MouseEvent) => {
     setMousePos({ x: e.clientX, y: e.clientY });
   };
 
@@ -54,7 +54,7 @@ export default function SectionFrontendDev() {
             className="inline-block cursor-pointer"
             whileHover={{ scale: 1.1, color: "#your-primary-color" }}
             transition={{ duration: 0.2 }}
-            onMouseEnter={() => setHoveredItem(images.functionality)}
+            onMouseEnter={() => setHoveredItem(images.functionality as any)}
             onMouseLeave={() => setHoveredItem(null)}
           >
             Functionality
@@ -66,7 +66,7 @@ export default function SectionFrontendDev() {
             className="inline-block cursor-pointer"
             whileHover={{ scale: 1.1, color: "#your-primary-color" }}
             transition={{ duration: 0.2 }}
-            onMouseEnter={() => setHoveredItem(images.aesthetics)}
+            onMouseEnter={() => setHoveredItem(images.aesthetics as any)}
             onMouseLeave={() => setHoveredItem(null)}
           >
             Aesthetics
@@ -78,7 +78,7 @@ export default function SectionFrontendDev() {
             className="inline-block cursor-pointer"
             whileHover={{ scale: 1.1, color: "#your-primary-color" }}
             transition={{ duration: 0.2 }}
-            onMouseEnter={() => setHoveredItem(images.satisfaction)}
+            onMouseEnter={() => setHoveredItem(images.satisfaction as any)}
             onMouseLeave={() => setHoveredItem(null)}
           >
             Satisfaction

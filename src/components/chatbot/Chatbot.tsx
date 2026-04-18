@@ -6,17 +6,39 @@ import {
   Smile, Mic, MicOff,
   Loader2, User, 
   ChevronUp, ChevronDown, Maximize, Minimize,
-  Cpu, Wifi, WifiOff, Info, Code, Briefcase, GraduationCap, Mail, Github, Linkedin, Instagram
+  Cpu, Wifi, WifiOff, Info
 } from 'lucide-react';
 import EmojiPicker from 'emoji-picker-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Lottie from 'lottie-react';
 
-const Chatbot = ({ isOpen: externalIsOpen, onClose }) => {
+// Type definitions
+interface Message {
+  id: number;
+  text: string;
+  sender: 'ai' | 'user' | 'system';
+  timestamp: Date;
+  username?: string;
+  type?: string;
+}
+
+interface ChatbotProps {
+  isOpen?: boolean;
+  onClose?: () => void;
+}
+
+// Declare window.puter
+declare global {
+  interface Window {
+    puter: any;
+  }
+}
+
+const Chatbot = ({ isOpen: externalIsOpen, onClose }: ChatbotProps) => {
   
   // State
   const [isOpen, setIsOpen] = useState(false);
-  const [messages, setMessages] = useState([
+  const [messages, setMessages] = useState<Message[]>([
     {
       id: 1,
       text: "Halo! 👋 Saya **Alf AI**, asisten virtual dari **Galvin Alfito Dinova**. Ada yang bisa saya bantu tentang portfolio, project, atau skill saya?",
@@ -37,11 +59,11 @@ const Chatbot = ({ isOpen: externalIsOpen, onClose }) => {
   const [selectedModel, setSelectedModel] = useState('gpt-5-nano');
   
   // Refs
-  const messagesEndRef = useRef(null);
-  const inputRef = useRef(null);
-  const chatWindowRef = useRef(null);
-  const emojiPickerRef = useRef(null);
-  const recognitionRef = useRef(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const chatWindowRef = useRef<HTMLDivElement>(null);
+  const emojiPickerRef = useRef<HTMLDivElement>(null);
+  const recognitionRef = useRef<any>(null);
 
   // Available models
   const availableModels = [
@@ -103,7 +125,7 @@ GAYA JAWAB:
 - Mudah dipahami
 
 Jadilah asisten yang cerdas, fleksibel, dan membantu 🚀`;
-};
+  };
 
   // Load Puter.ai script
   useEffect(() => {
@@ -113,16 +135,16 @@ Jadilah asisten yang cerdas, fleksibel, dan membantu 🚀`;
   // Initialize Speech Recognition
   useEffect(() => {
     if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
       recognitionRef.current = new SpeechRecognition();
       recognitionRef.current.continuous = false;
       recognitionRef.current.interimResults = true;
       recognitionRef.current.lang = 'id-ID';
 
-      recognitionRef.current.onresult = (event) => {
+      recognitionRef.current.onresult = (event: any) => {
         const transcript = Array.from(event.results)
-          .map(result => result[0])
-          .map(result => result.transcript)
+          .map((result: any) => result[0])
+          .map((result: any) => result.transcript)
           .join('');
         setInputMessage(transcript);
       };
@@ -135,8 +157,8 @@ Jadilah asisten yang cerdas, fleksibel, dan membantu 🚀`;
 
   // Handle click outside emoji picker
   useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (emojiPickerRef.current && !emojiPickerRef.current.contains(event.target)) {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (emojiPickerRef.current && !emojiPickerRef.current.contains(event.target as Node)) {
         setShowEmojiPicker(false);
       }
     };
@@ -154,7 +176,7 @@ Jadilah asisten yang cerdas, fleksibel, dan membantu 🚀`;
   }, [messages, isTyping]);
 
   // Load Puter.ai script
-  const loadPuterScript = () => {
+  const loadPuterScript = (): Promise<void> => {
     return new Promise((resolve) => {
       if (window.puter) {
         setApiStatus('ready');
@@ -180,7 +202,7 @@ Jadilah asisten yang cerdas, fleksibel, dan membantu 🚀`;
     });
   };
 
-  const simulateTyping = async (text, callback) => {
+  const simulateTyping = async (text: string, callback: (typedText: string) => void) => {
     setIsTyping(true);
     let displayedText = "";
     const speed = text.length > 300 ? 10 : 20;
@@ -193,11 +215,11 @@ Jadilah asisten yang cerdas, fleksibel, dan membantu 🚀`;
     setIsTyping(false);
   };
 
-  const addSystemNotification = (text) => {
+  const addSystemNotification = (text: string) => {
     const notificationId = messageId;
     setMessageId(prev => prev + 1);
     
-    const notificationMessage = {
+    const notificationMessage: Message = {
       id: notificationId,
       text: text,
       sender: 'system',
@@ -212,7 +234,7 @@ Jadilah asisten yang cerdas, fleksibel, dan membantu 🚀`;
     }, 5000);
   };
 
-  const sendToAI = async (message) => {
+  const sendToAI = async (message: string) => {
     if (!window.puter) {
       await loadPuterScript();
       if (!window.puter) {
@@ -252,7 +274,7 @@ Jadilah asisten yang cerdas, fleksibel, dan membantu 🚀`;
   };
 
   // Mock response untuk portfolio
-  const getMockResponse = (message) => {
+  const getMockResponse = (message: string) => {
     const lowerMessage = message.toLowerCase();
     
     if (lowerMessage.includes('halo') || lowerMessage.includes('hai') || lowerMessage.includes('hello')) {
@@ -283,7 +305,7 @@ Jadilah asisten yang cerdas, fleksibel, dan membantu 🚀`;
     return `Halo! 👋\n\nTerima kasih atas pertanyaannya. Saya **Alf AI**, asisten virtual Galvin Alfito Dinova.\n\n**Yang bisa saya bantu:**\n• 📝 **Skill & Keahlian** - Teknologi yang dikuasai\n• 💻 **Project Portfolio** - Karya yang sudah dibuat\n• 💼 **Pengalaman Kerja** - Riwayat profesional\n• 🎓 **Pendidikan** - Latar belakang akademik\n• 📞 **Kontak** - Cara menghubungi Galvin\n\nSilakan tanyakan hal yang ingin diketahui tentang portfolio Galvin. Saya siap membantu! 😊\n\nAtau bisa langsung lihat halaman website untuk informasi lebih lengkap. ✨`;
   };
 
-  const sendMessage = async (e) => {
+  const sendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!inputMessage.trim() || isLoading) return;
 
@@ -296,7 +318,7 @@ Jadilah asisten yang cerdas, fleksibel, dan membantu 🚀`;
       setIsListening(false);
     }
     
-    const userMessageObj = {
+    const userMessageObj: Message = {
       id: messageId,
       text: userMessage,
       sender: 'user', 
@@ -311,7 +333,7 @@ Jadilah asisten yang cerdas, fleksibel, dan membantu 🚀`;
     try {
       const aiResponse = await sendToAI(userMessage);
       
-      const aiMessageObj = {
+      const aiMessageObj: Message = {
         id: messageId + 1,
         text: "",
         sender: 'ai',
@@ -339,7 +361,7 @@ Jadilah asisten yang cerdas, fleksibel, dan membantu 🚀`;
       
       const errorMessage = "**Maaf, terjadi kesalahan!** 🙏\n\nSistem AI sedang mengalami gangguan. Silakan coba lagi dalam beberapa saat.\n\n**Alternatif:**\n• Refresh halaman\n• Cek koneksi internet\n• Hubungi langsung via kontak di footer\n\nAtau bisa langsung lihat halaman portfolio untuk informasi lebih lanjut.";
       
-      const errorMessageObj = {
+      const errorMessageObj: Message = {
         id: messageId + 1,
         text: errorMessage,
         sender: 'ai',
@@ -407,22 +429,22 @@ Jadilah asisten yang cerdas, fleksibel, dan membantu 🚀`;
     }
   };
 
-  const changeModel = (modelId) => {
+  const changeModel = (modelId: string) => {
     const newModel = availableModels.find(m => m.id === modelId);
     setSelectedModel(modelId);
     addSystemNotification(`**Model AI diubah** ke ${newModel?.name || modelId}`);
   };
 
-  const onEmojiClick = (emojiData) => {
+  const onEmojiClick = (emojiData: any) => {
     setInputMessage(prev => prev + emojiData.emoji);
     inputRef.current?.focus();
   };
 
-  const formatTime = (date) => {
+  const formatTime = (date: Date) => {
     return date.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
   };
 
-  const renderMessageContent = (message) => {
+  const renderMessageContent = (message: Message) => {
     if (message.type === 'notification') {
       return (
         <div className="bg-transparent backdrop-blur-sm border border-gray-600/50 rounded-lg p-3">
@@ -442,7 +464,7 @@ Jadilah asisten yang cerdas, fleksibel, dan membantu 🚀`;
     return renderTextWithMarkdown(message.text);
   };
 
-  const renderTextWithMarkdown = (text) => {
+  const renderTextWithMarkdown = (text: string) => {
     const lines = text.split('\n');
     
     return lines.map((line, lineIndex) => {
@@ -458,7 +480,7 @@ Jadilah asisten yang cerdas, fleksibel, dan membantu 🚀`;
         let lastIndex = 0;
         
         boldMatches.forEach((match, matchIndex) => {
-          if (match.index > lastIndex) {
+          if (match.index && match.index > lastIndex) {
             elements.push(
               <span key={`${lineIndex}-${matchIndex}-before`}>
                 {line.substring(lastIndex, match.index)}
@@ -472,7 +494,7 @@ Jadilah asisten yang cerdas, fleksibel, dan membantu 🚀`;
             </strong>
           );
           
-          lastIndex = match.index + match[0].length;
+          lastIndex = (match.index || 0) + match[0].length;
         });
         
         if (lastIndex < line.length) {
@@ -498,7 +520,7 @@ Jadilah asisten yang cerdas, fleksibel, dan membantu 🚀`;
       if (/^\d+\.\s/.test(line)) {
         return (
           <div key={lineIndex} className="flex items-start mb-1 ml-2">
-            <span className="mr-2 font-medium text-gray-400">{line.match(/^\d+/)[0]}.</span>
+            <span className="mr-2 font-medium text-gray-400">{line.match(/^\d+/)?.[0]}.</span>
             <span className="text-gray-300">{line.substring(line.indexOf('. ') + 2)}</span>
           </div>
         );
@@ -576,7 +598,6 @@ Jadilah asisten yang cerdas, fleksibel, dan membantu 🚀`;
                 <Lottie 
                   animationData={IconAi} 
                   loop={true} 
-                  autoplay={true} 
                   style={{ width: '100%', height: '100%' }}
                 />
               </div>
@@ -652,25 +673,12 @@ Jadilah asisten yang cerdas, fleksibel, dan membantu 🚀`;
                         >
                           {/* Sender Icon and Name */}
                           <div className="flex items-center gap-2 mb-2">
-                            <div className={`w-6 h-6 rounded-full flex items-center justify-center overflow-hidden ${
-                              msg.sender === 'user' ? 
-                              'bg-gradient-to-r from-gray-600 to-gray-700' : 
-                              ''
-                            }`}>
-                              {msg.sender === 'user' ? 
-                                <Lottie 
-                                  animationData={IconAi} 
-                                  loop={true} 
-                                  autoplay={true} 
-                                  style={{ width: '100%', height: '100%' }}
-                                /> : 
-                                <Lottie 
-                                  animationData={IconAi} 
-                                  loop={true} 
-                                  autoplay={true} 
-                                  style={{ width: '100%', height: '100%' }}
-                                />
-                              }
+                            <div className="w-6 h-6 rounded-full flex items-center justify-center overflow-hidden">
+                              <Lottie 
+                                animationData={IconAi} 
+                                loop={true} 
+                                style={{ width: '100%', height: '100%' }}
+                              />
                             </div>
                             <span className="text-xs font-medium text-gray-300">
                               {msg.sender === 'user' ? 'Pengunjung' : 'Alf AI'}
@@ -738,7 +746,7 @@ Jadilah asisten yang cerdas, fleksibel, dan membantu 🚀`;
               <div className="border-t border-gray-800/30 p-4" style={{ backgroundColor: 'rgba(17, 24, 39, 0.7)', backdropFilter: 'blur(20px)' }}>
                 {showEmojiPicker && (
                   <div ref={emojiPickerRef} className="absolute bottom-20 right-4 z-50">
-                    <EmojiPicker onEmojiClick={onEmojiClick} theme="dark" />
+                    <EmojiPicker onEmojiClick={onEmojiClick} />
                   </div>
                 )}
                 

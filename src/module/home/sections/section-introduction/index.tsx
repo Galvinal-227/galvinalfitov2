@@ -3,22 +3,13 @@ import { useAnimate, motion, useTransform } from 'framer-motion'
 import { useLenis } from '@studio-freight/react-lenis'
 import MouseSvg from 'assets/animation/mouse.json'
 
-import Lottie from 'react-lottie'
+import Lottie from 'lottie-react'
 import LetMeIntroduceSection from './let-me-introduce-section'
 import CreativeDeveloperSection from './creative-developer-section'
 import SpecializingFrontendSection from './specializing-frontend-section'
 import { StateContext } from 'context/state'
 import SectionIntroductionMobile from 'module/mobile/home/section-introduction'
 import useSpeedScrollElement from 'hooks/use-speed-scroll-element'
-
-const lottieOptions = {
-  loop: true,
-  autoplay: true,
-  animationData: MouseSvg,
-  rendererSettings: {
-    preserveAspectRatio: 'xMidYMid slice'
-  }
-}
 
 const Default = ({ asPreview }: { asPreview: any }) => {
   return (
@@ -70,7 +61,11 @@ const SectionIntroduction = ({ asPreview }: { asPreview: any }) => {
       <motion.div ref={scope} initial={{ opacity: 0 }} className="MENU-CHANGE-Y-100 sticky bottom-5 flex justify-center">
         <div className="flex items-center text-xl capitalize text-white">
           scroll
-          <Lottie options={lottieOptions} height={50} width={50} isClickToPauseDisabled />
+          <Lottie
+            animationData={MouseSvg}
+            loop={true}
+            style={{ width: 50, height: 50 }}
+          />
           down
         </div>
       </motion.div>

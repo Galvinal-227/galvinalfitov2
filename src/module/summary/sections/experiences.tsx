@@ -17,6 +17,7 @@ import TypescriptIcon from 'assets/icons/TypeScript.png'
 import VscIcon from 'assets/icons/VisualStudioLogoShadow.png'
 import FigmaIcon from 'assets/icons/Figma.png'
 import GithubIcon from 'assets/icons/Github.png'
+import { link } from 'fs'
 
 const TechStack = () => {
   const techCategories = [
@@ -77,6 +78,7 @@ const Experiences = () => {
       notAllowed
       title="SMKN 2 Nganjuk - PPLG (Pengembangan Perangkat Lunak dan Gim)"
       sentences={['Nganjuk', `2023 - ${new Date().getFullYear()}`]}
+      link="/"
     />
   </ul>
 </div>
@@ -126,6 +128,7 @@ const Experiences = () => {
       notAllowed 
       title="Self Learning Programming" 
       sentences={['Belajar React, TypeScript, dan JavaScript secara mandiri', '2024 - Sekarang']} 
+      link="/"
     />
 
     <Experience 
@@ -133,6 +136,7 @@ const Experiences = () => {
       title="Game Development Practice" 
       sentences={['Membuat game menggunakan Construct 3', 'Project: Cowboy Shooter']} 
       className="mt-5" 
+      link="/"
     />
 
     <Experience 
@@ -140,6 +144,8 @@ const Experiences = () => {
       title="Web Development Exploration" 
       sentences={['Membangun website dengan React + Tailwind', 'Membuat UI modern & responsive']} 
       className="mt-5" 
+      link="/"
+
     />
 
     <Experience 
@@ -147,6 +153,7 @@ const Experiences = () => {
       title="Version Control Learning" 
       sentences={['Menggunakan Git & GitHub untuk manage project', 'Collaborative workflow']} 
       className="mt-5" 
+      link="/"
     />
 
   </ul>
