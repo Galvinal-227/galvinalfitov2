@@ -1,7 +1,7 @@
 import GalcalbuImg from 'assets/projects/Galcalbu.png'
 import TaskImg from 'assets/projects/TaskManager.png'
 import WeatherImg from 'assets/projects/Weather-Dashboard.png'
-import OldPorto from 'assets/projects/OldPortofolio.png'
+import OldPorto from 'assets/projects/Oldportofolio.png'
 import alImg from 'assets/projects/al-q.png'
 import Magnet from 'components/effect/magnet'
 import { motion } from 'framer-motion'
