@@ -39,36 +39,36 @@ const variants = {
 }
 
 const paragraph = [
-  <div className="flex items-center" key="front-enddeveloper">
+  <div className="flex items-center gap-3" key="front-enddeveloper">
     fullstack developer
     <Lottie
       animationData={RocketAnimation}
       loop={true}
-      style={{ width: 100, height: 100, cursor: 'default' }}
+      style={{ width: 110, height: 110, cursor: 'default' }}
     />
   </div>,
-  <div className="flex items-center" key="laughinglayouts">
+  <div className="flex items-center gap-3" key="laughinglayouts">
     laughing @layouts!
     <Lottie
       animationData={NyanCatAnimation}
       loop={true}
-      style={{ width: 50, height: 50, marginLeft: '1rem', cursor: 'default' }}
+      style={{ width: 110, height: 110, cursor: 'default' }}
     />
   </div>,
-  <div className="flex items-center" key="designingdreams">
+  <div className="flex items-center gap-3" key="designingdreams">
     designing dreams
     <Lottie
-      animationData={SuccessAnimation}
+      animationData={ChatbotAnimation}
       loop={true}
-      style={{ width: 80, height: 80, marginLeft: '1rem', cursor: 'default', marginBottom: '2rem' }}
+      style={{ width: 80, height: 80, cursor: 'default' }}
     />
   </div>,
-  <div className="flex items-center" key="galvinalfito">
+  <div className="flex items-center gap-3" key="galvinalfito">
     Galvin Alfito D
     <Lottie
       animationData={ArrowAnimation}
       loop={true}
-      style={{ width: 100, height: 50, marginLeft: '1rem', cursor: 'default', marginTop: '2rem' }}
+      style={{ width: 100, height: 50, cursor: 'default', marginTop: '3rem' }}
     />
   </div>
 ]
