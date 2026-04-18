@@ -14,7 +14,7 @@ export default function SectionExperiences() {
     {text1: 'Al-Quran Indonesia', text2: '2026', text3: 'Fullstack Developer', color: 'rgba(158,107,184,0.996078)', image: alImg, link: 'https://al-q-app.vercel.app/'},
     { text1: 'Galcalbu', text2: '2025', text3: 'Backend Logic', color: '#0091F8', image: GalcalbuImg, link:'https://drive.google.com/drive/folders/146BLVi5szX4DuyTiGl_qABXrhjOkgB8Q?usp=sharing'},
     { text1: 'Task Manager', text2: '2025', text3: 'Backend Logic', color: '#F1592A', image: TaskImg, link:'https://drive.google.com/drive/folders/1Pq4pWeQ5ZXhayNPfTauEHTLzAiSPhPWv?usp=sharing'},
-    { text1: 'Weather App', text2: '2025', text3: 'Frontend Developer', color: '#F1922C', image: WeatherImg, link:'https://galvinal-227.github.io/WeatherDashboard/'}
+    { text1: 'Weather App', text2: '2025', text3: 'Frontend Developer', color: '#F1922C', image: WeatherImg, link:'https://galvinal-227.github.io/WeatherDashboard/'},
     { text1: 'Old Portfolio', text2: '2025', text3: 'Frontend Developer', color: '#F1926C', image: WeatherImg, link:'https://galvinal-227.github.io/WeatherDashboard/'}
   ]
 
