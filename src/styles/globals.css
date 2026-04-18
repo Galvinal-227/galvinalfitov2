@@ -1,0 +1,123 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+::-webkit-scrollbar {
+  display: none;
+}
+
+@layer {
+  body {
+    width: 100vw;
+    height: 100vh;
+    /* overflow-x: hidden; */
+    @apply bg-primary;
+  }
+
+  .slide-in {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    transform-origin: bottom;
+  }
+  .slide-out {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    transform-origin: top;
+  }
+
+  .noise {
+    position: fixed;
+    top: -50%;
+    left: -50%;
+    right: -50%;
+    bottom: -50%;
+    width: 200%;
+    z-index: 999;
+    height: 200vh;
+    background: transparent url('../assets/images/noise-transparent.png') repeat 0 0;
+    background-repeat: repeat;
+    animation: bg-noise-anim 0.2s infinite;
+    opacity: 0.9;
+    visibility: visible;
+    pointer-events: none;
+  }
+
+  .CONTAINER {
+    @apply container mx-auto px-4 md:px-8 2xl:px-[5vw];
+  }
+
+  .txt {
+    @apply text-primary;
+    filter: invert(100%);
+  }
+
+  .MENU-CHANGE-Y-100 {
+  }
+  .MENU-CHANGE-Y-200 {
+  }
+  .MENU-CHANGE-SCALE-150 {
+  }
+  .MENU-CHANGE-SCALE-125 {
+  }
+  .MENU-CHANGE-SCALE-80 {
+  }
+  .MENU-CHANGE-OPACITY-0 {
+  }
+  .MENU-CHANGE-Y-100-STAGGER {
+  }
+  .MENU-CHANGE-Y-200-STAGGER {
+  }
+  .CHILD-STAGGER {
+  }
+}
+
+@keyframes rotateText {
+  0% {
+    transform: rotate(360deg);
+  }
+  100% {
+    transform: rotate(0deg);
+  }
+}
+
+@keyframes bg-noise-anim {
+  0% {
+    transform: translate(0, 0);
+  }
+  10% {
+    transform: translate(-5%, -5%);
+  }
+  20% {
+    transform: translate(-10%, 5%);
+  }
+  30% {
+    transform: translate(5%, -10%);
+  }
+  40% {
+    transform: translate(-5%, 15%);
+  }
+  50% {
+    transform: translate(-10%, 5%);
+  }
+  60% {
+    transform: translate(15%, 0);
+  }
+  70% {
+    transform: translate(0, 10%);
+  }
+  80% {
+    transform: translate(-15%, 0);
+  }
+  90% {
+    transform: translate(10%, 5%);
+  }
+  100% {
+    transform: translate(5%, 0);
+  }
+}
