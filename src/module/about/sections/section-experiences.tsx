@@ -1,6 +1,7 @@
 import GalcalbuImg from 'assets/projects/Galcalbu.png'
 import TaskImg from 'assets/projects/TaskManager.png'
 import WeatherImg from 'assets/projects/Weather-Dashboard.png'
+import OldPorto from 'assets/projects/OldPortofolio.png'
 import alImg from 'assets/projects/al-q.png'
 import Magnet from 'components/effect/magnet'
 import { motion } from 'framer-motion'
@@ -15,7 +16,7 @@ export default function SectionExperiences() {
     { text1: 'Galcalbu', text2: '2025', text3: 'Backend Logic', color: '#0091F8', image: GalcalbuImg, link:'https://drive.google.com/drive/folders/146BLVi5szX4DuyTiGl_qABXrhjOkgB8Q?usp=sharing'},
     { text1: 'Task Manager', text2: '2025', text3: 'Backend Logic', color: '#F1592A', image: TaskImg, link:'https://drive.google.com/drive/folders/1Pq4pWeQ5ZXhayNPfTauEHTLzAiSPhPWv?usp=sharing'},
     { text1: 'Weather App', text2: '2025', text3: 'Frontend Developer', color: '#F1922C', image: WeatherImg, link:'https://galvinal-227.github.io/WeatherDashboard/'},
-    { text1: 'Old Portfolio', text2: '2025', text3: 'Frontend Developer', color: '#F1926C', image: WeatherImg, link:'https://galvinal-227.github.io/WeatherDashboard/'}
+    { text1: 'Old Portfolio', text2: '2025', text3: 'Frontend Developer', color: '#F1926C', image: OldPorto, link:'https://galvinal-227.github.io/GAD-Port/'}
   ]
 
   return (
