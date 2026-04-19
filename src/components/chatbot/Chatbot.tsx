@@ -6,7 +6,7 @@ import {
   Smile, Mic, MicOff,
   Loader2, User, 
   ChevronUp, ChevronDown, Maximize, Minimize,
-  Cpu, Wifi, WifiOff, Info
+  Cpu, Wifi, WifiOff, Info, LogIn
 } from 'lucide-react';
 import EmojiPicker from 'emoji-picker-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -41,7 +41,7 @@ const Chatbot = ({ isOpen: externalIsOpen, onClose }: ChatbotProps) => {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: 1,
-      text: "Halo! 👋 Saya **Alf AI**, asisten virtual dari **Galvin Alfito Dinova**. Ada yang bisa saya bantu tentang portfolio, project, atau skill saya?",
+      text: "Halo! 👋 Saya Alf AI, asisten virtual Galvin. Ada yang bisa saya bantu?",
       sender: 'ai',
       timestamp: new Date(),
       username: 'Alf AI'
@@ -55,8 +55,10 @@ const Chatbot = ({ isOpen: externalIsOpen, onClose }: ChatbotProps) => {
   const [isListening, setIsListening] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [messageId, setMessageId] = useState(2);
-  const [apiStatus, setApiStatus] = useState('idle');
+  const [apiStatus, setApiStatus] = useState('idle'); // idle, loading, ready, error, unauthenticated
   const [selectedModel, setSelectedModel] = useState('gpt-5-nano');
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [showLoginPrompt, setShowLoginPrompt] = useState(false);
   
   // Refs
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -82,54 +84,43 @@ const Chatbot = ({ isOpen: externalIsOpen, onClose }: ChatbotProps) => {
     }
   }, [externalIsOpen]);
 
-  // System prompt untuk Portfolio
+  // System prompt untuk Portfolio - VERSI SINGKAT
   const getSystemPrompt = () => {
-    return `Kamu adalah **Alf AI**, asisten virtual dari **Galvin Alfito Dinova**.
+    return `Kamu adalah Alf AI, asisten virtual Galvin Alfito Dinova (Pelajar SMKN 2 Nganjuk - PPLG).
 
-INFORMASI UTAMA:
-Kamu berfungsi sebagai:
-1. Asisten portfolio Galvin
-2. Asisten umum yang bisa menjawab berbagai pertanyaan
+INFO SINGKAT GALVIN:
+- Skill: React, JS, Tailwind, Node.js dasar, GitHub, Figma, Unity
+- Project: Portfolio Website, Cowboy Shooter Game, Website Top Up Game, UI/UX Design
 
-TENTANG GALVIN:
-- Nama: Galvin Alfito Dinova
-- Status: Pelajar SMKN 2 Nganjuk (Kelas 11 - PPLG)
-- Fokus: Web Development, Game Development, UI/UX
+ATURAN PENTING:
+1. JAWAB SINGKAT & PADAT - jangan bertele-tele
+2. Maksimal 2-3 kalimat untuk pertanyaan sederhana
+3. Gunakan bullet point hanya jika benar-benar perlu
+4. Bahasa Indonesia santai
+5. Emoji secukupnya (maksimal 1-2 per pesan)
 
-SKILL:
-- Frontend: React, JS, Tailwind
-- Backend: Node.js (dasar)
-- Tools: GitHub, Figma, Unity, Construct 3
+CONTOH JAWABAN:
+- "Halo" → "Halo! Ada yang bisa saya bantu?"
+- "Skill apa aja?" → "React, JS, Tailwind, Node.js dasar. Mau tau detailnya?"
+- "Project apa?" → "Portfolio web, game Cowboy Shooter, web top up game. Mau lihat yang mana?"
 
-PROJECT:
-- Portfolio Website
-- Cowboy Shooter Game
-- Website Top Up Game
-- UI/UX Design
+JANGAN:
+- Jangan jelaskan panjang lebar kecuali diminta
+- Jangan kasih list lengkap kecuali ditanya "detail" atau "semua"
+- Jangan mulai dengan "Tentu!" atau "Baik, saya akan jelaskan..."
 
-ATURAN UTAMA:
-1. Gunakan Bahasa Indonesia santai tapi profesional.
-2. Awali dengan "Halo!".
-3. Gunakan emoji secukupnya 💻🚀✨
-4. Jawaban harus jelas, rapi, dan membantu.
-
-PERILAKU AI:
-- Jika ditanya tentang Galvin → jawab detail & profesional
-- Jika ditanya umum (coding, game, dll) → jawab seperti asisten pintar
-- Jika ditanya di luar kemampuan → arahkan dengan sopan
-- Jangan membatasi jawaban hanya tentang Galvin
-
-GAYA JAWAB:
-- Gunakan paragraf pendek
-- Gunakan bullet point jika perlu
-- Mudah dipahami
-
-Jadilah asisten yang cerdas, fleksibel, dan membantu 🚀`;
+Jika user minta detail/penjelasan lengkap, baru kasih jawaban panjang.`;
   };
 
-  // Load Puter.ai script
+  // Load Puter.ai script dan cek autentikasi
   useEffect(() => {
-    loadPuterScript();
+    const initPuter = async () => {
+      const loaded = await loadPuterScript();
+      if (loaded) {
+        await checkPuterAuth();
+      }
+    };
+    initPuter();
   }, []);
 
   // Initialize Speech Recognition
@@ -176,30 +167,95 @@ Jadilah asisten yang cerdas, fleksibel, dan membantu 🚀`;
   }, [messages, isTyping]);
 
   // Load Puter.ai script
-  const loadPuterScript = (): Promise<void> => {
+  const loadPuterScript = (): Promise<boolean> => {
     return new Promise((resolve) => {
+      // Cek apakah script sudah ada
       if (window.puter) {
         setApiStatus('ready');
-        resolve();
+        resolve(true);
         return;
       }
       
+      // Cek apakah script tag sudah ada tapi belum load
+      const existingScript = document.querySelector('script[src="https://js.puter.com/v2/"]');
+      if (existingScript) {
+        setApiStatus('loading');
+        existingScript.addEventListener('load', () => {
+          setApiStatus('ready');
+          resolve(true);
+        });
+        existingScript.addEventListener('error', () => {
+          setApiStatus('error');
+          resolve(false);
+        });
+        return;
+      }
+      
+      setApiStatus('loading');
       const script = document.createElement('script');
       script.src = 'https://js.puter.com/v2/';
       script.async = true;
       
       script.onload = () => {
         setApiStatus('ready');
-        resolve();
+        resolve(true);
       };
       
       script.onerror = () => {
         setApiStatus('error');
-        resolve();
+        resolve(false);
       };
       
       document.head.appendChild(script);
     });
+  };
+
+  // Cek status autentikasi Puter
+  const checkPuterAuth = async () => {
+    if (!window.puter) return false;
+    
+    try {
+      const authStatus = await window.puter.auth.isAuthenticated();
+      setIsAuthenticated(authStatus);
+      
+      if (!authStatus) {
+        setApiStatus('unauthenticated');
+        setShowLoginPrompt(true);
+      } else {
+        setApiStatus('ready');
+        setShowLoginPrompt(false);
+      }
+      
+      return authStatus;
+    } catch (error) {
+      console.error('Auth check error:', error);
+      setApiStatus('unauthenticated');
+      setShowLoginPrompt(true);
+      return false;
+    }
+  };
+
+  // Fungsi untuk login ke Puter
+  const handlePuterLogin = async () => {
+    if (!window.puter) {
+      addSystemNotification("⚠️ AI Service belum siap. Tunggu sebentar...");
+      return;
+    }
+    
+    try {
+      setApiStatus('loading');
+      await window.puter.auth.signIn();
+      const authStatus = await checkPuterAuth();
+      
+      if (authStatus) {
+        addSystemNotification("✅ Login berhasil! AI siap digunakan.");
+        setShowLoginPrompt(false);
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      setApiStatus('unauthenticated');
+      addSystemNotification("❌ Login gagal. Coba lagi.");
+    }
   };
 
   const simulateTyping = async (text: string, callback: (typedText: string) => void) => {
@@ -235,16 +291,23 @@ Jadilah asisten yang cerdas, fleksibel, dan membantu 🚀`;
   };
 
   const sendToAI = async (message: string) => {
+    // Cek autentikasi
+    if (!isAuthenticated) {
+      setShowLoginPrompt(true);
+      return "⚠️ Login dulu ya buat pakai AI. Klik tombol Login di bawah.";
+    }
+    
     if (!window.puter) {
-      await loadPuterScript();
-      if (!window.puter) {
+      const loaded = await loadPuterScript();
+      if (!loaded) {
+        setApiStatus('error');
         return getMockResponse(message);
       }
     }
     
     try {
       setApiStatus('loading');
-      const fullPrompt = `${getSystemPrompt()}\n\nPertanyaan: ${message}\n\nJawab dalam Bahasa Indonesia yang ramah dan profesional:`;
+      const fullPrompt = `${getSystemPrompt()}\n\nUser: ${message}\n\nJawab SINGKAT:`;
       
       const response = await window.puter.ai.chat(fullPrompt, {
         model: selectedModel,
@@ -273,36 +336,42 @@ Jadilah asisten yang cerdas, fleksibel, dan membantu 🚀`;
     }
   };
 
-  // Mock response untuk portfolio
+  // Mock response - VERSI SINGKAT
   const getMockResponse = (message: string) => {
     const lowerMessage = message.toLowerCase();
     
     if (lowerMessage.includes('halo') || lowerMessage.includes('hai') || lowerMessage.includes('hello')) {
-      return `Halo! 👋 Senang bertemu dengan Anda!\n\nSaya **Alf AI**, asisten virtual dari **Galvin Alfito Dinova**. Saya bisa bantu Anda mengetahui tentang:\n\n• 📝 **Skill & Keahlian** Galvin\n• 💻 **Project** yang sudah dibuat\n• 💼 **Pengalaman** kerja\n• 🎓 **Pendidikan**\n• 📞 **Kontak**\n\nAda yang ingin ditanyakan? 😊`;
+      return "Halo! 👋 Ada yang bisa saya bantu?";
     }
     
-    if (lowerMessage.includes('skill') || lowerMessage.includes('keahlian') || lowerMessage.includes('bisa apa')) {
-      return `Halo! 👋\n\nBerikut **skill dan keahlian** Galvin Alfito Dinova:\n\n**Frontend** 🎨\n• React.js / Next.js\n• TypeScript / JavaScript\n• Tailwind CSS / Bootstrap\n• HTML5 / CSS3\n• Framer Motion\n\n**Backend** ⚙️\n• Node.js / Express\n• Python / Django\n• RESTful API / GraphQL\n• Database (MySQL, PostgreSQL, MongoDB)\n\n**Tools & Lainnya** 🛠️\n• Git & GitHub\n• Figma (UI/UX)\n• Docker\n• AWS\n\nLihat halaman portfolio untuk demo project! 🚀`;
+    if (lowerMessage.includes('skill') || lowerMessage.includes('bisa')) {
+      if (lowerMessage.includes('detail') || lowerMessage.includes('semua')) {
+        return "Skill Galvin:\n• Frontend: React, JS, Tailwind\n• Backend: Node.js dasar\n• Tools: GitHub, Figma, Unity\n\nMau tau lebih detail yang mana?";
+      }
+      return "React, JavaScript, Tailwind, Node.js dasar. Mau tau detailnya?";
     }
     
     if (lowerMessage.includes('project')) {
-      return `Halo! 👋\n\nBerikut **project unggulan** Galvin Alfito Dinova:\n\n**1. Portfolio Website** ✨\nWebsite portfolio interaktif dengan animasi modern\nTech: React, Framer Motion, Tailwind CSS\n\n**2. E-commerce App** 🛒\nPlatform belanja online dengan payment gateway\nTech: Next.js, Node.js, MongoDB\n\n**3. AI Chatbot** 🤖\nAsisten pintar dengan multiple AI models\nTech: React, Puter.ai, Web Speech API\n\n**4. Task Management App** 📋\nAplikasi manajemen task real-time\nTech: React, Firebase, Material-UI\n\n**5. Weather App** 🌤️\nAplikasi cuaca dengan API integration\nTech: Vanilla JS, OpenWeather API\n\nDetail lengkap bisa lihat di halaman Projects! 💻`;
+      if (lowerMessage.includes('detail') || lowerMessage.includes('semua')) {
+        return "Project Galvin:\n1. Portfolio Website (React)\n2. Cowboy Shooter Game (Unity)\n3. Website Top Up Game\n4. UI/UX Design\n\nMau lihat yang mana?";
+      }
+      return "Portfolio web, game shooter, web top up game. Mau tau lebih detail?";
     }
     
-    if (lowerMessage.includes('pendidikan') || lowerMessage.includes('kuliah') || lowerMessage.includes('sekolah')) {
-      return `Halo! 👋\n\n**Pendidikan** Galvin Alfito Dinova:\n\n**S1 Informatika** - Universitas Brawijaya (2020 - 2024) 🎓\n• IPK: 3.85/4.00\n• Focus: Web Development & Artificial Intelligence\n• Thesis: "Pengembangan Chatbot AI untuk Portfolio Interaktif"\n• Aktif di UKM Programming Club\n\n**Bootcamp Full Stack** - Dibimbing.id (2023) 📚\n• Graduated with Honors\n• Belajar: React, Node.js, Database, Deployment\n\n**Sertifikasi** 📜\n• AWS Certified Cloud Practitioner\n• Meta Frontend Developer Professional Certificate\n• Google UX Design Certificate`;
+    if (lowerMessage.includes('sekolah') || lowerMessage.includes('kuliah')) {
+      return "SMKN 2 Nganjuk, jurusan PPLG kelas 11.";
     }
     
-    if (lowerMessage.includes('kontak') || lowerMessage.includes('hubungi') || lowerMessage.includes('email')) {
-      return `Halo! 👋\n\nBerikut **kontak** Galvin Alfito Dinova:\n\n**Email** 📧: galvin.alfito@example.com\n**LinkedIn** 🔗: /in/galvin-alfito-dinova\n**GitHub** 🐙: github.com/galvinalfito\n**Instagram** 📸: @galvin.alfito\n**WhatsApp** 💬: +62 812-3456-7890\n\nAtau bisa langsung kirim pesan melalui form kontak di website! Saya akan merespon dalam 1x24 jam. 📨`;
+    if (lowerMessage.includes('kontak') || lowerMessage.includes('hubungi')) {
+      return "Email: galvin.alfito@example.com | IG: @galvin.alfito";
     }
     
     if (lowerMessage.includes('terima kasih') || lowerMessage.includes('makasih')) {
-      return `Sama-sama! 😊 Senang bisa membantu Anda.\n\nJika ada pertanyaan lain tentang Galvin atau portfolio-nya, jangan ragu untuk bertanya ya! 🚀\n\nHave a great day! ✨`;
+      return "Sama-sama! 😊";
     }
     
-    // Default response
-    return `Halo! 👋\n\nTerima kasih atas pertanyaannya. Saya **Alf AI**, asisten virtual Galvin Alfito Dinova.\n\n**Yang bisa saya bantu:**\n• 📝 **Skill & Keahlian** - Teknologi yang dikuasai\n• 💻 **Project Portfolio** - Karya yang sudah dibuat\n• 💼 **Pengalaman Kerja** - Riwayat profesional\n• 🎓 **Pendidikan** - Latar belakang akademik\n• 📞 **Kontak** - Cara menghubungi Galvin\n\nSilakan tanyakan hal yang ingin diketahui tentang portfolio Galvin. Saya siap membantu! 😊\n\nAtau bisa langsung lihat halaman website untuk informasi lebih lengkap. ✨`;
+    // Default response singkat
+    return "Bisa tanya soal skill, project, atau kontak Galvin. Ada yang mau ditanyakan?";
   };
 
   const sendMessage = async (e: React.FormEvent) => {
@@ -359,7 +428,7 @@ Jadilah asisten yang cerdas, fleksibel, dan membantu 🚀`;
     } catch (error) {
       console.error('Error:', error);
       
-      const errorMessage = "**Maaf, terjadi kesalahan!** 🙏\n\nSistem AI sedang mengalami gangguan. Silakan coba lagi dalam beberapa saat.\n\n**Alternatif:**\n• Refresh halaman\n• Cek koneksi internet\n• Hubungi langsung via kontak di footer\n\nAtau bisa langsung lihat halaman portfolio untuk informasi lebih lanjut.";
+      const errorMessage = "Maaf, ada error. Coba lagi ya.";
       
       const errorMessageObj: Message = {
         id: messageId + 1,
@@ -389,10 +458,10 @@ Jadilah asisten yang cerdas, fleksibel, dan membantu 🚀`;
   };
 
   const clearChat = () => {
-    if (window.confirm("Yakin mau memulai percakapan baru?")) {
+    if (window.confirm("Yakin mau mulai percakapan baru?")) {
       setMessages([{
         id: 1,
-        text: "Halo! 👋 Saya **Alf AI**, asisten virtual dari **Galvin Alfito Dinova**. Ada yang bisa saya bantu tentang portfolio, project, atau skill saya?",
+        text: "Halo! 👋 Saya Alf AI, asisten virtual Galvin. Ada yang bisa saya bantu?",
         sender: 'ai',
         timestamp: new Date(),
         username: 'Alf AI'
@@ -403,7 +472,7 @@ Jadilah asisten yang cerdas, fleksibel, dan membantu 🚀`;
 
   const toggleListening = () => {
     if (!recognitionRef.current) {
-      addSystemNotification("Browser tidak mendukung voice recognition. Gunakan Chrome atau Edge terbaru.");
+      addSystemNotification("Browser tidak support voice recognition.");
       return;
     }
     
@@ -417,7 +486,7 @@ Jadilah asisten yang cerdas, fleksibel, dan membantu 🚀`;
           setIsListening(true);
         })
         .catch(() => {
-          addSystemNotification("Izin mikrofon diperlukan untuk voice input.");
+          addSystemNotification("Izin mikrofon diperlukan.");
         });
     }
   };
@@ -432,7 +501,7 @@ Jadilah asisten yang cerdas, fleksibel, dan membantu 🚀`;
   const changeModel = (modelId: string) => {
     const newModel = availableModels.find(m => m.id === modelId);
     setSelectedModel(modelId);
-    addSystemNotification(`**Model AI diubah** ke ${newModel?.name || modelId}`);
+    addSystemNotification(`Model: ${newModel?.name || modelId}`);
   };
 
   const onEmojiClick = (emojiData: any) => {
@@ -505,13 +574,13 @@ Jadilah asisten yang cerdas, fleksibel, dan membantu 🚀`;
           );
         }
         
-        return <p key={lineIndex} className="mb-2 text-gray-300">{elements}</p>;
+        return <p key={lineIndex} className="mb-1 text-gray-300">{elements}</p>;
       }
       
       if (line.startsWith('- ') || line.startsWith('• ') || line.startsWith('* ')) {
         return (
-          <div key={lineIndex} className="flex items-start mb-1 ml-2">
-            <span className="mr-2 mt-1 text-gray-500">•</span>
+          <div key={lineIndex} className="flex items-start mb-0.5 ml-2">
+            <span className="mr-2 text-gray-500">•</span>
             <span className="text-gray-300">{line.substring(2)}</span>
           </div>
         );
@@ -519,14 +588,14 @@ Jadilah asisten yang cerdas, fleksibel, dan membantu 🚀`;
       
       if (/^\d+\.\s/.test(line)) {
         return (
-          <div key={lineIndex} className="flex items-start mb-1 ml-2">
+          <div key={lineIndex} className="flex items-start mb-0.5 ml-2">
             <span className="mr-2 font-medium text-gray-400">{line.match(/^\d+/)?.[0]}.</span>
             <span className="text-gray-300">{line.substring(line.indexOf('. ') + 2)}</span>
           </div>
         );
       }
       
-      return <p key={lineIndex} className="mb-2 text-gray-300">{line}</p>;
+      return <p key={lineIndex} className="mb-1 text-gray-300">{line}</p>;
     });
   };
 
@@ -602,7 +671,7 @@ Jadilah asisten yang cerdas, fleksibel, dan membantu 🚀`;
                 />
               </div>
               <div>
-                <h3 className="font-bold text-white">Alf AI - Portfolio Assistant</h3>
+                <h3 className="font-bold text-white">Alf AI</h3>
                 <div className="flex items-center gap-1 mt-0.5">
                   <Cpu className="w-3 h-3 text-gray-400" />
                   <span className="text-xs text-gray-400">
@@ -649,6 +718,34 @@ Jadilah asisten yang cerdas, fleksibel, dan membantu 🚀`;
             <>
               {/* Messages Container */}
               <div className="flex-1 overflow-y-auto p-4 space-y-4" style={{ backgroundColor: 'transparent' }}>
+                {/* Login Prompt */}
+                {showLoginPrompt && !isAuthenticated && (
+                  <motion.div 
+                    className="bg-gradient-to-r from-blue-900/50 to-purple-900/50 backdrop-blur-md rounded-xl p-4 border border-blue-500/30"
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                  >
+                    <div className="flex items-start gap-3">
+                      <div className="w-10 h-10 rounded-full bg-blue-600/30 flex items-center justify-center">
+                        <LogIn className="w-5 h-5 text-blue-400" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-white font-medium mb-1">Login untuk AI Assistant</p>
+                        <p className="text-sm text-gray-300 mb-3">
+                          Login dengan Puter.ai (gratis) untuk ngobrol pakai AI.
+                        </p>
+                        <button
+                          onClick={handlePuterLogin}
+                          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition flex items-center gap-2"
+                        >
+                          <LogIn className="w-4 h-4" />
+                          Login dengan Puter.ai
+                        </button>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+
                 <AnimatePresence>
                   {messages.map((msg) => (
                     <motion.div
@@ -665,7 +762,7 @@ Jadilah asisten yang cerdas, fleksibel, dan membantu 🚀`;
                         </div>
                       ) : (
                         <div 
-                          className={`max-w-[85%] rounded-xl p-4 backdrop-blur-md ${
+                          className={`max-w-[85%] rounded-xl p-3 backdrop-blur-md ${
                             msg.sender === 'user' ? 
                             'bg-gray-800/60 text-white border border-gray-600/30' : 
                             'bg-gray-900/60 text-gray-100 border border-gray-700/30'
@@ -673,7 +770,7 @@ Jadilah asisten yang cerdas, fleksibel, dan membantu 🚀`;
                         >
                           {/* Sender Icon and Name */}
                           <div className="flex items-center gap-2 mb-2">
-                            <div className="w-6 h-6 rounded-full flex items-center justify-center overflow-hidden">
+                            <div className="w-5 h-5 rounded-full flex items-center justify-center overflow-hidden">
                               <Lottie 
                                 animationData={IconAi} 
                                 loop={true} 
@@ -681,22 +778,19 @@ Jadilah asisten yang cerdas, fleksibel, dan membantu 🚀`;
                               />
                             </div>
                             <span className="text-xs font-medium text-gray-300">
-                              {msg.sender === 'user' ? 'Pengunjung' : 'Alf AI'}
+                              {msg.sender === 'user' ? 'Kamu' : 'Alf AI'}
                             </span>
                           </div>
                           
                           {/* Message Content */}
-                          <div className="whitespace-pre-wrap break-words">
+                          <div className="whitespace-pre-wrap break-words text-sm">
                             {renderMessageContent(msg)}
                           </div>
                           
                           {/* Message Footer */}
-                          <div className="flex items-center justify-between mt-3 pt-2 border-t border-gray-700/30">
+                          <div className="flex items-center justify-end mt-2 pt-1 border-t border-gray-700/30">
                             <div className="text-xs text-gray-500">
                               {formatTime(msg.timestamp)}
-                            </div>
-                            <div className="text-xs text-gray-600">
-                              {msg.sender === 'ai' ? 'AI Assistant' : 'Anda'}
                             </div>
                           </div>
                         </div>
@@ -712,28 +806,26 @@ Jadilah asisten yang cerdas, fleksibel, dan membantu 🚀`;
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                   >
-                    <div className="bg-gray-900/60 backdrop-blur-md rounded-xl p-4 border border-gray-700/30 max-w-[85%]">
-                      <div className="flex items-center gap-3">
+                    <div className="bg-gray-900/60 backdrop-blur-md rounded-xl p-3 border border-gray-700/30">
+                      <div className="flex items-center gap-2">
                         <div className="flex gap-1">
                           <motion.div 
-                            className="w-2 h-2 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full"
+                            className="w-2 h-2 bg-blue-500 rounded-full"
                             animate={{ y: [0, -4, 0] }}
                             transition={{ duration: 0.6, repeat: Infinity }}
                           />
                           <motion.div 
-                            className="w-2 h-2 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full"
+                            className="w-2 h-2 bg-blue-500 rounded-full"
                             animate={{ y: [0, -4, 0] }}
                             transition={{ duration: 0.6, repeat: Infinity, delay: 0.2 }}
                           />
                           <motion.div 
-                            className="w-2 h-2 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full"
+                            className="w-2 h-2 bg-blue-500 rounded-full"
                             animate={{ y: [0, -4, 0] }}
                             transition={{ duration: 0.6, repeat: Infinity, delay: 0.4 }}
                           />
                         </div>
-                        <div className="text-sm text-gray-400">
-                          {apiStatus === 'loading' ? 'Menghubungkan...' : 'Mengetik...'}
-                        </div>
+                        <span className="text-xs text-gray-400">Mengetik...</span>
                       </div>
                     </div>
                   </motion.div>
@@ -743,115 +835,96 @@ Jadilah asisten yang cerdas, fleksibel, dan membantu 🚀`;
               </div>
 
               {/* Input Area */}
-              <div className="border-t border-gray-800/30 p-4" style={{ backgroundColor: 'rgba(17, 24, 39, 0.7)', backdropFilter: 'blur(20px)' }}>
+              <div className="border-t border-gray-800/30 p-3" style={{ backgroundColor: 'rgba(17, 24, 39, 0.7)', backdropFilter: 'blur(20px)' }}>
                 {showEmojiPicker && (
-                  <div ref={emojiPickerRef} className="absolute bottom-20 right-4 z-50">
+                  <div ref={emojiPickerRef} className="absolute bottom-16 right-3 z-50">
                     <EmojiPicker onEmojiClick={onEmojiClick} />
                   </div>
                 )}
                 
                 {/* Model Selector */}
-                <div className="mb-3">
+                <div className="mb-2">
                   <div className="flex items-center justify-between mb-1">
-                    <span className="text-xs text-gray-500">AI Model:</span>
                     <div className="flex items-center gap-2">
-                      <div className={`flex items-center gap-1 ${apiStatus === 'ready' ? 'text-green-500' : apiStatus === 'error' ? 'text-red-500' : 'text-yellow-500'}`}>
+                      <div className={`flex items-center gap-1 ${apiStatus === 'ready' ? 'text-green-500' : apiStatus === 'error' ? 'text-red-500' : apiStatus === 'unauthenticated' ? 'text-yellow-500' : 'text-gray-500'}`}>
                         {apiStatus === 'ready' ? <Wifi className="w-3 h-3" /> : <WifiOff className="w-3 h-3" />}
-                        <span className="text-xs">
-                          {apiStatus === 'ready' ? 'Connected' : 
-                           apiStatus === 'loading' ? 'Connecting...' : 
-                           apiStatus === 'error' ? 'Disconnected' : 'Idle'}
-                        </span>
+                      </div>
+                      {/* Model pills */}
+                      <div className="flex flex-wrap gap-1">
+                        {availableModels.slice(0, 3).map((model) => (
+                          <button
+                            key={model.id}
+                            onClick={() => changeModel(model.id)}
+                            className={`px-2 py-0.5 rounded text-xs transition ${
+                              selectedModel === model.id ? 
+                              'bg-gray-700/70 text-white' : 
+                              'bg-gray-800/50 text-gray-400 hover:bg-gray-700/50'
+                            }`}
+                          >
+                            {model.name}
+                          </button>
+                        ))}
                       </div>
                     </div>
-                  </div>
-                  <div className="flex flex-wrap gap-1">
-                    {availableModels.map((model) => (
+                    {isAuthenticated && (
                       <button
-                        key={model.id}
-                        onClick={() => changeModel(model.id)}
-                        className={`px-2 py-1 rounded text-xs transition backdrop-blur-sm ${
-                          selectedModel === model.id ? 
-                          'bg-gray-700/70 text-white' : 
-                          'bg-gray-800/50 text-gray-400 hover:bg-gray-700/50'
-                        }`}
-                        title={model.desc}
+                        onClick={handlePuterLogout}
+                        className="text-xs text-gray-500 hover:text-gray-300"
                       >
-                        {model.name}
+                        Logout
                       </button>
-                    ))}
+                    )}
                   </div>
                 </div>
                 
-                <form onSubmit={sendMessage} className="flex flex-col gap-3">
-                  <div className="flex gap-2 w-full">
-                    {/* Emoji Button */}
-                    <button 
-                      type="button" 
-                      onClick={() => setShowEmojiPicker(!showEmojiPicker)} 
-                      className="flex-shrink-0 w-12 h-12 flex items-center justify-center bg-gray-800/50 backdrop-blur-sm border border-gray-700/30 rounded-lg hover:bg-gray-700/50 transition-all"
-                      title="Emoji"
-                    >
-                      <Smile className="w-5 h-5 text-gray-400" />
-                    </button>
-                    
-                    {/* Voice Input Button */}
-                    <button 
-                      type="button" 
-                      onClick={toggleListening} 
-                      className={`flex-shrink-0 w-12 h-12 flex items-center justify-center rounded-lg transition-all backdrop-blur-sm ${
-                        isListening ? 
-                        'bg-red-600/70 text-white animate-pulse' : 
-                        'bg-gray-800/50 border border-gray-700/30 text-gray-400 hover:bg-gray-700/50'
-                      }`}
-                      title="Voice Input"
-                    >
-                      {isListening ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
-                    </button>
-                    
-                    {/* Input Field */}
-                    <input
-                      ref={inputRef}
-                      type="text"
-                      value={inputMessage}
-                      onChange={(e) => setInputMessage(e.target.value)}
-                      placeholder={isListening ? "Bicaralah..." : "Tanya tentang portfolio Galvin..."}
-                      className="flex-1 min-w-0 h-12 bg-gray-800/50 backdrop-blur-sm border border-gray-700/30 rounded-lg px-4 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-600/50 focus:border-transparent"
-                      disabled={isLoading}
-                    />
-                    
-                    {/* Send Button */}
-                    <motion.button 
-                      type="submit" 
-                      className="flex-shrink-0 bg-gray-700/70 backdrop-blur-sm text-white w-12 h-12 flex items-center justify-center rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      disabled={isLoading || !inputMessage.trim()}
-                      title="Kirim"
-                    >
-                      {isLoading ? (
-                        <Loader2 className="w-5 h-5 animate-spin" />
-                      ) : (
-                        <Send className="w-5 h-5" />
-                      )}
-                    </motion.button>
-                  </div>
-                
-                  {/* Voice Status Indicator */}
-                  {isListening && (
-                    <div className="mt-1 text-center">
-                      <div className="flex items-center justify-center gap-2">
-                        <div className="flex space-x-1">
-                          <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
-                          <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse" style={{animationDelay: '0.2s'}}></div>
-                          <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse" style={{animationDelay: '0.4s'}}></div>
-                        </div>
-                        <span className="text-xs text-red-400 font-medium">
-                          Mendengarkan... Klik mikrofon untuk berhenti.
-                        </span>
-                      </div>
-                    </div>
-                  )}
+                <form onSubmit={sendMessage} className="flex gap-2">
+                  {/* Emoji Button */}
+                  <button 
+                    type="button" 
+                    onClick={() => setShowEmojiPicker(!showEmojiPicker)} 
+                    className="flex-shrink-0 w-10 h-10 flex items-center justify-center bg-gray-800/50 backdrop-blur-sm border border-gray-700/30 rounded-lg hover:bg-gray-700/50 transition"
+                  >
+                    <Smile className="w-4 h-4 text-gray-400" />
+                  </button>
+                  
+                  {/* Voice Input Button */}
+                  <button 
+                    type="button" 
+                    onClick={toggleListening} 
+                    className={`flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-lg transition ${
+                      isListening ? 
+                      'bg-red-600/70 text-white' : 
+                      'bg-gray-800/50 border border-gray-700/30 text-gray-400 hover:bg-gray-700/50'
+                    }`}
+                  >
+                    {isListening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
+                  </button>
+                  
+                  {/* Input Field */}
+                  <input
+                    ref={inputRef}
+                    type="text"
+                    value={inputMessage}
+                    onChange={(e) => setInputMessage(e.target.value)}
+                    placeholder={isListening ? "Bicara..." : isAuthenticated ? "Tanya sesuatu..." : "Login dulu buat chat..."}
+                    className="flex-1 h-10 bg-gray-800/50 backdrop-blur-sm border border-gray-700/30 rounded-lg px-3 text-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-600/50 text-sm"
+                    disabled={isLoading || !isAuthenticated}
+                  />
+                  
+                  {/* Send Button */}
+                  <motion.button 
+                    type="submit" 
+                    className="flex-shrink-0 bg-gray-700/70 text-white w-10 h-10 flex items-center justify-center rounded-lg font-medium disabled:opacity-50"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    disabled={isLoading || !inputMessage.trim() || !isAuthenticated}
+                  >
+                    {isLoading ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <Send className="w-4 h-4" />
+                    )}
+                  </motion.button>
                 </form>
               </div>
             </>
