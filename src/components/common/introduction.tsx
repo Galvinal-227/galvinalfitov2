@@ -44,7 +44,7 @@ const paragraph = [
     <Lottie
       animationData={RocketAnimation}
       loop={true}
-      style={{ width: 200, height: 200, cursor: 'default' }}
+      style={{ width: 150, height: 150, cursor: 'default' }}
     />
   </div>,
   <div className="flex items-center gap-3" key="laughinglayouts">
