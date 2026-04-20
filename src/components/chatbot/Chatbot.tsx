@@ -6,7 +6,7 @@ import {
   Smile, Mic, MicOff,
   Loader2, 
   ChevronUp, ChevronDown, Maximize, Minimize,
-  Cpu, Wifi, WifiOff, Info
+  Cpu, Wifi, WifiOff, Info, Square
 } from 'lucide-react';
 import EmojiPicker from 'emoji-picker-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -55,9 +55,10 @@ const Chatbot = ({ isOpen: externalIsOpen, onClose }: ChatbotProps) => {
   const [isListening, setIsListening] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [messageId, setMessageId] = useState(2);
-  const [apiStatus, setApiStatus] = useState('loading'); // loading, ready, error
+  const [apiStatus, setApiStatus] = useState('loading');
   const [selectedModel, setSelectedModel] = useState('gpt-5-nano');
   const [puterLoaded, setPuterLoaded] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
   
   // Refs
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -65,6 +66,8 @@ const Chatbot = ({ isOpen: externalIsOpen, onClose }: ChatbotProps) => {
   const chatWindowRef = useRef<HTMLDivElement>(null);
   const emojiPickerRef = useRef<HTMLDivElement>(null);
   const recognitionRef = useRef<any>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
+  const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Available models
   const availableModels = [
@@ -79,7 +82,6 @@ const Chatbot = ({ isOpen: externalIsOpen, onClose }: ChatbotProps) => {
   // Load Puter.js script
   useEffect(() => {
     const loadPuterScript = () => {
-      // Cek apakah script sudah ada
       if (window.puter) {
         setPuterLoaded(true);
         setApiStatus('ready');
@@ -114,31 +116,24 @@ const Chatbot = ({ isOpen: externalIsOpen, onClose }: ChatbotProps) => {
     }
   }, [externalIsOpen]);
 
-  // System prompt untuk Portfolio - VERSI SINGKAT
+  // System prompt - VERSI SANGAT TEGAS
   const getSystemPrompt = () => {
-    return `Kamu adalah Alf AI, asisten virtual Galvin Alfito Dinova (Pelajar SMKN 2 Nganjuk - PPLG).
+    return `Kamu adalah Alf AI, asisten virtual Galvin (SMKN 2 Nganjuk - PPLG).
 
-INFO SINGKAT GALVIN:
-- Skill: React, JS, Tailwind, Node.js dasar, GitHub, Figma, Unity
-- Project: Portfolio Website, Cowboy Shooter Game, Website Top Up Game, UI/UX Design
+INFO:
+- Skill: React, JS, Tailwind, Node.js dasar, Figma, Unity
+- Project: Portfolio web, game shooter, web top up, UI/UX design
 
-ATURAN PENTING:
-1. JAWAB SINGKAT & PADAT - jangan bertele-tele
-2. Maksimal 2-3 kalimat untuk pertanyaan sederhana
-3. Gunakan bullet point hanya jika benar-benar perlu
-4. Bahasa Indonesia santai
-5. Emoji secukupnya (maksimal 1-2 per pesan)
+ATURAN WAJIB:
+1. JAWAB MAKSIMAL 1-2 KALIMAT SAJA
+2. JANGAN PERNAH MENJELASKAN PANJANG
+3. JANGAN GUNAKAN BULLET POINT/LIST
+4. Langsung to the point
 
-CONTOH JAWABAN:
-- "Halo" → "Halo! Ada yang bisa saya bantu?"
-- "Skill apa aja?" → "React, JS, Tailwind, Node.js dasar. Mau tau detailnya?"
-- "Project apa?" → "Portfolio web, game shooter, web top up game. Mau lihat yang mana?"
-
-JANGAN:
-- Jangan jelaskan panjang lebar kecuali diminta
-- Jangan kasih list lengkap kecuali ditanya "detail" atau "semua"
-
-Jika user minta detail/penjelasan lengkap, baru kasih jawaban panjang.`;
+CONTOH:
+User: "Halo" → "Halo! Ada yang bisa dibantu?"
+User: "Skill apa?" → "React, JS, Tailwind, Node.js dasar."
+User: "Project apa?" → "Portfolio, game shooter, web top up, UI/UX."`;
   };
 
   // Initialize Speech Recognition
@@ -175,6 +170,18 @@ Jika user minta detail/penjelasan lengkap, baru kasih jawaban panjang.`;
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+      if (typingTimeoutRef.current) {
+        clearTimeout(typingTimeoutRef.current);
+      }
+    };
+  }, []);
+
   // Scroll to bottom
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -184,17 +191,54 @@ Jika user minta detail/penjelasan lengkap, baru kasih jawaban panjang.`;
     scrollToBottom();
   }, [messages, isTyping]);
 
-  const simulateTyping = async (text: string, callback: (typedText: string) => void) => {
+  // Fungsi untuk stop generating
+  const stopGenerating = () => {
+    // Abort API call
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+      abortControllerRef.current = null;
+    }
+    
+    // Stop typing simulation
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+      typingTimeoutRef.current = null;
+    }
+    
+    // Update states
+    setIsGenerating(false);
+    setIsTyping(false);
+    setIsLoading(false);
+    
+    // Add notification
+    addSystemNotification("⏹️ AI dihentikan.");
+  };
+
+  const simulateTyping = async (text: string, callback: (typedText: string) => void, signal?: AbortSignal) => {
     setIsTyping(true);
+    setIsGenerating(true);
     let displayedText = "";
     const speed = text.length > 300 ? 10 : 20;
     
     for (let i = 0; i < text.length; i++) {
+      // Check if aborted
+      if (signal?.aborted) {
+        // Save partial response
+        callback(displayedText + "...");
+        setIsTyping(false);
+        setIsGenerating(false);
+        return;
+      }
+      
       displayedText += text[i];
       callback(displayedText);
-      await new Promise(resolve => setTimeout(resolve, speed));
+      await new Promise(resolve => {
+        const timeout = setTimeout(resolve, speed);
+        typingTimeoutRef.current = timeout;
+      });
     }
     setIsTyping(false);
+    setIsGenerating(false);
   };
 
   const addSystemNotification = (text: string) => {
@@ -213,11 +257,11 @@ Jika user minta detail/penjelasan lengkap, baru kasih jawaban panjang.`;
     
     setTimeout(() => {
       setMessages(prev => prev.filter(msg => msg.id !== notificationId));
-    }, 5000);
+    }, 3000);
   };
 
   // Fungsi untuk chat menggunakan Puter.js
-  const chatWithPuter = async (message: string): Promise<string> => {
+  const chatWithPuter = async (message: string, signal?: AbortSignal): Promise<string> => {
     if (!window.puter) {
       setApiStatus('error');
       addSystemNotification("⚠️ AI belum siap. Tunggu sebentar...");
@@ -227,72 +271,80 @@ Jika user minta detail/penjelasan lengkap, baru kasih jawaban panjang.`;
     try {
       setApiStatus('loading');
       
-      const fullPrompt = `${getSystemPrompt()}\n\nUser: ${message}\n\nJawab SINGKAT:`;
+      const fullPrompt = `${getSystemPrompt()}\n\nPertanyaan: ${message}\n\nJawab singkat (maksimal 2 kalimat):`;
       
-      // Gunakan puter.ai.chat sesuai dokumentasi
+      // Gunakan puter.ai.chat
       const response = await window.puter.ai.chat(fullPrompt, { 
         model: selectedModel,
-        max_token: 100,
-        temperature: 0.3
+        max_tokens: 100
       });
+      
+      // Check if aborted
+      if (signal?.aborted) {
+        return "[DIBERHENTIKAN]";
+      }
       
       setApiStatus('ready');
       
-      // Handle berbagai format response
+      let aiText = '';
       if (typeof response === 'string') {
-        return response;
+        aiText = response;
       } else if (response && response.message?.content) {
-        return response.message.content;
+        aiText = response.message.content;
       } else if (response && response.content) {
-        return response.content;
+        aiText = response.content;
       } else {
-        console.warn('Unknown response format:', response);
-        return getMockResponse(message);
+        aiText = getMockResponse(message);
       }
       
-    } catch (error) {
+      // Potong paksa jadi 2 kalimat
+      const sentences = aiText.split(/[.!?]/);
+      const shortResponse = sentences.slice(0, 2).join('. ') + (sentences.length > 2 ? '.' : '');
+      
+      return shortResponse;
+      
+    } catch (error: any) {
+      // Check if aborted
+      if (error?.name === 'AbortError' || signal?.aborted) {
+        return "[DIBERHENTIKAN]";
+      }
+      
       console.error('Puter.ai Error:', error);
       setApiStatus('error');
-      addSystemNotification("⚠️ Gagal terhubung ke AI. Gunakan mode offline.");
+      addSystemNotification("⚠️ Gagal terhubung ke AI.");
       return getMockResponse(message);
     }
   };
 
-  // Mock response - VERSI SINGKAT (sebagai fallback)
+  // Mock response - VERSI SINGKAT
   const getMockResponse = (message: string) => {
     const lowerMessage = message.toLowerCase();
     
-    if (lowerMessage.includes('halo') || lowerMessage.includes('hai') || lowerMessage.includes('hello')) {
+    if (lowerMessage.includes('halo') || lowerMessage.includes('hai')) {
       return "Halo! 👋 Ada yang bisa saya bantu?";
     }
     
-    if (lowerMessage.includes('skill') || lowerMessage.includes('bisa')) {
-      if (lowerMessage.includes('detail') || lowerMessage.includes('semua')) {
-        return "Skill Galvin:\n• Frontend: React, JS, Tailwind\n• Backend: Node.js dasar\n• Tools: GitHub, Figma, Unity\n\nMau tau lebih detail yang mana?";
-      }
-      return "React, JavaScript, Tailwind, Node.js dasar. Mau tau detailnya?";
+    if (lowerMessage.includes('skill')) {
+      return "React, JS, Tailwind, Node.js dasar.";
     }
     
     if (lowerMessage.includes('project')) {
-      if (lowerMessage.includes('detail') || lowerMessage.includes('semua')) {
-        return "Project Galvin:\n1. Portfolio Website (React)\n2. Cowboy Shooter Game (Unity)\n3. Website Top Up Game\n4. UI/UX Design\n\nMau lihat yang mana?";
-      }
-      return "Portfolio web, game shooter, web top up game. Mau tau lebih detail?";
+      return "Portfolio web, game shooter, web top up, UI/UX.";
     }
     
-    if (lowerMessage.includes('sekolah') || lowerMessage.includes('kuliah')) {
-      return "SMKN 2 Nganjuk, jurusan PPLG kelas 11.";
+    if (lowerMessage.includes('sekolah')) {
+      return "SMKN 2 Nganjuk, kelas 11 PPLG.";
     }
     
-    if (lowerMessage.includes('kontak') || lowerMessage.includes('hubungi')) {
-      return "Email: galvin.alfito@example.com | IG: @galvin.alfito";
+    if (lowerMessage.includes('kontak')) {
+      return "Email: galvin.alfito@example.com";
     }
     
-    if (lowerMessage.includes('terima kasih') || lowerMessage.includes('makasih')) {
+    if (lowerMessage.includes('terima kasih')) {
       return "Sama-sama! 😊";
     }
     
-    return "Bisa tanya soal skill, project, atau kontak Galvin. Ada yang mau ditanyakan?";
+    return "Bisa tanya soal skill, project, atau kontak.";
   };
 
   const sendMessage = async (e: React.FormEvent) => {
@@ -319,10 +371,34 @@ Jika user minta detail/penjelasan lengkap, baru kasih jawaban panjang.`;
     setMessageId(prev => prev + 1);
     setMessages(prev => [...prev, userMessageObj]);
     setIsLoading(true);
+    setIsGenerating(true);
+
+    // Buat AbortController baru
+    abortControllerRef.current = new AbortController();
+    const signal = abortControllerRef.current.signal;
 
     try {
-      // Panggil Puter.js AI
-      const aiResponse = await chatWithPuter(userMessage);
+      // Panggil Puter.js AI dengan signal
+      const aiResponse = await chatWithPuter(userMessage, signal);
+      
+      // Check if aborted
+      if (signal.aborted) {
+        // Save partial message
+        const aiMessageObj: Message = {
+          id: messageId + 1,
+          text: aiResponse === "[DIBERHENTIKAN]" ? "⏹️ Diberhentikan." : aiResponse,
+          sender: 'ai',
+          timestamp: new Date(),
+          username: 'Alf AI'
+        };
+        
+        setMessageId(prev => prev + 2);
+        setMessages(prev => [...prev, aiMessageObj]);
+        setIsLoading(false);
+        setIsGenerating(false);
+        abortControllerRef.current = null;
+        return;
+      }
       
       const aiMessageObj: Message = {
         id: messageId + 1,
@@ -345,41 +421,47 @@ Jika user minta detail/penjelasan lengkap, baru kasih jawaban panjang.`;
           };
           return newMessages;
         });
-      });
+      }, signal);
 
-    } catch (error) {
-      console.error('Error:', error);
-      
-      const errorMessage = "Maaf, ada error. Coba lagi ya.";
-      
-      const errorMessageObj: Message = {
-        id: messageId + 1,
-        text: errorMessage,
-        sender: 'ai',
-        timestamp: new Date(),
-        username: 'Alf AI'
-      };
-      
-      setMessageId(prev => prev + 2);
-      setMessages(prev => [...prev, errorMessageObj]);
-      
-      await simulateTyping(errorMessage, (typedText) => {
-        setMessages(prev => {
-          const newMessages = [...prev];
-          const lastIndex = newMessages.length - 1;
-          newMessages[lastIndex] = {
-            ...errorMessageObj,
-            text: typedText
-          };
-          return newMessages;
-        });
-      });
+    } catch (error: any) {
+      if (error?.name === 'AbortError' || signal.aborted) {
+        const aiMessageObj: Message = {
+          id: messageId + 1,
+          text: "⏹️ Diberhentikan.",
+          sender: 'ai',
+          timestamp: new Date(),
+          username: 'Alf AI'
+        };
+        
+        setMessageId(prev => prev + 2);
+        setMessages(prev => [...prev, aiMessageObj]);
+      } else {
+        console.error('Error:', error);
+        
+        const errorMessage = "Maaf, ada error. Coba lagi ya.";
+        
+        const errorMessageObj: Message = {
+          id: messageId + 1,
+          text: errorMessage,
+          sender: 'ai',
+          timestamp: new Date(),
+          username: 'Alf AI'
+        };
+        
+        setMessageId(prev => prev + 2);
+        setMessages(prev => [...prev, errorMessageObj]);
+      }
     } finally {
       setIsLoading(false);
+      setIsGenerating(false);
+      abortControllerRef.current = null;
     }
   };
 
   const clearChat = () => {
+    // Stop any ongoing generation
+    stopGenerating();
+    
     if (window.confirm("Yakin mau mulai percakapan baru?")) {
       setMessages([{
         id: 1,
@@ -438,15 +520,12 @@ Jika user minta detail/penjelasan lengkap, baru kasih jawaban panjang.`;
   const renderMessageContent = (message: Message) => {
     if (message.type === 'notification') {
       return (
-        <div className="bg-transparent backdrop-blur-sm border border-gray-600/50 rounded-lg p-3">
+        <div className="bg-transparent backdrop-blur-sm border border-gray-600/50 rounded-lg p-2">
           <div className="flex items-start gap-2">
-            <Info className="w-4 h-4 text-gray-400 mt-0.5 flex-shrink-0" />
-            <div className="text-sm text-gray-300">
+            <Info className="w-3 h-3 text-gray-400 mt-0.5 flex-shrink-0" />
+            <div className="text-xs text-gray-300">
               {renderTextWithMarkdown(message.text)}
             </div>
-          </div>
-          <div className="text-xs text-gray-500 text-right mt-2">
-            {formatTime(message.timestamp)}
           </div>
         </div>
       );
@@ -640,7 +719,7 @@ Jika user minta detail/penjelasan lengkap, baru kasih jawaban panjang.`;
             <>
               {/* Messages Container */}
               <div className="flex-1 overflow-y-auto p-3 space-y-3" style={{ backgroundColor: 'transparent' }}>
-                {/* Loading indicator untuk pertama kali */}
+                {/* Loading indicator */}
                 {!puterLoaded && (
                   <motion.div 
                     className="flex justify-center"
@@ -678,7 +757,6 @@ Jika user minta detail/penjelasan lengkap, baru kasih jawaban panjang.`;
                             'bg-gray-900/60 text-gray-100 border border-gray-700/30'
                           }`}
                         >
-                          {/* Sender Icon and Name */}
                           <div className="flex items-center gap-2 mb-1">
                             <div className="w-5 h-5 rounded-full flex items-center justify-center overflow-hidden">
                               <Lottie 
@@ -692,12 +770,10 @@ Jika user minta detail/penjelasan lengkap, baru kasih jawaban panjang.`;
                             </span>
                           </div>
                           
-                          {/* Message Content */}
                           <div className="whitespace-pre-wrap break-words text-sm">
                             {renderMessageContent(msg)}
                           </div>
                           
-                          {/* Message Footer */}
                           <div className="flex items-center justify-end mt-1 pt-1 border-t border-gray-700/30">
                             <div className="text-xs text-gray-500">
                               {formatTime(msg.timestamp)}
@@ -709,7 +785,7 @@ Jika user minta detail/penjelasan lengkap, baru kasih jawaban panjang.`;
                   ))}
                 </AnimatePresence>
                 
-                {/* Typing Indicator */}
+                {/* Typing Indicator dengan tombol Stop */}
                 {(isLoading || isTyping) && (
                   <motion.div 
                     className="flex justify-start"
@@ -717,7 +793,7 @@ Jika user minta detail/penjelasan lengkap, baru kasih jawaban panjang.`;
                     animate={{ opacity: 1 }}
                   >
                     <div className="bg-gray-900/60 backdrop-blur-md rounded-xl p-3 border border-gray-700/30">
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-3">
                         <div className="flex gap-1">
                           <motion.div 
                             className="w-2 h-2 bg-blue-500 rounded-full"
@@ -735,7 +811,17 @@ Jika user minta detail/penjelasan lengkap, baru kasih jawaban panjang.`;
                             transition={{ duration: 0.6, repeat: Infinity, delay: 0.4 }}
                           />
                         </div>
-                        <span className="text-xs text-gray-400">Mengetik...</span>
+                        <span className="text-xs text-gray-400">AI sedang mengetik...</span>
+                        
+                        {/* STOP BUTTON */}
+                        <button
+                          onClick={stopGenerating}
+                          className="ml-2 p-1 bg-red-500/20 hover:bg-red-500/40 rounded-lg transition flex items-center gap-1"
+                          title="Hentikan"
+                        >
+                          <Square className="w-3 h-3 text-red-400" />
+                          <span className="text-xs text-red-400">Stop</span>
+                        </button>
                       </div>
                     </div>
                   </motion.div>
@@ -752,7 +838,6 @@ Jika user minta detail/penjelasan lengkap, baru kasih jawaban panjang.`;
                   </div>
                 )}
                 
-                {/* Model Selector */}
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
                     <Cpu className="w-3 h-3 text-gray-400" />
@@ -768,7 +853,6 @@ Jika user minta detail/penjelasan lengkap, baru kasih jawaban panjang.`;
                           'bg-gray-700/70 text-white' : 
                           'bg-gray-800/50 text-gray-400 hover:bg-gray-700/50'
                         }`}
-                        title={model.desc}
                       >
                         {model.name.replace('GPT-', '').replace('Gemini ', '').replace('DeepSeek ', '').replace('Claude ', '')}
                       </button>
