@@ -231,7 +231,9 @@ Jika user minta detail/penjelasan lengkap, baru kasih jawaban panjang.`;
       
       // Gunakan puter.ai.chat sesuai dokumentasi
       const response = await window.puter.ai.chat(fullPrompt, { 
-        model: selectedModel 
+        model: selectedModel,
+        max_token: 100,
+        temperature: 0.3
       });
       
       setApiStatus('ready');
