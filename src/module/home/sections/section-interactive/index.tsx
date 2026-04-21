@@ -209,10 +209,10 @@ const Default = () => {
             <HandPeace />
           </div>
           <motion.p className="CONTAINER MENU-CHANGE-Y-100 pointer-events-none mt-20 text-4xl text-gray-500">
-            I'm not just a <span className="font-semibold text-primary">developer</span>. I'm a problem solver, a creative thinker, and a partner in
-            your digital journey. Let's bring your <span className="font-semibold text-primary">ideas to life</span> and create experiences that
-            resonate with your audience. Ready to embark on this journey together? Reach out, and let's make the web a more exciting place, one
-            interactive project at a time.
+            I'm not just a <span className="font-semibold text-primary">developer</span>. I'm a creative thinker who loves building interactive experiences,
+            from games to modern websites. I enjoy turning ideas into reality and solving problems with clean and functional design.
+            Let's bring your <span className="font-semibold text-primary">ideas to life</span> and create something impactful together.
+            Ready to build something awesome? Let's make it happen.
           </motion.p>
         </div>
       </div>
