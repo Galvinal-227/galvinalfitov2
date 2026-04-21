@@ -55,7 +55,6 @@ const Backsound: React.FC<BacksoundProps> = ({ onComplete }) => {
               transition={{ duration: 3, repeat: Infinity }}
             >
               <div className="relative">
-                <div className="absolute inset-0 rounded-full bg-primary/10 blur-xl" />
                 <div className="relative h-32 w-32 rounded-full bg-primary/5 flex items-center justify-center border border-primary/20">
                   {isPlaying ? (
                     <Volume2 className="h-16 w-16 text-primary" />
