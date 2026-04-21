@@ -65,7 +65,6 @@ const Backsound: React.FC<BacksoundProps> = ({ onComplete }) => {
                       className="h-16 w-16"
                     />
                   )}
-                </div>
               </div>
             </motion.div>
 
