@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useRef, useEffect, useState } from 'react';
-import backgroundMusic from 'assets/bekson.mpeg';
+import backgroundMusic from '/bekson.mpeg.mp3';
 
 interface MusicContextType {
   isPlaying: boolean;
