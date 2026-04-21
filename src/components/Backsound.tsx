@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Volume2, VolumeX, ArrowRight, Music, Headphones } from 'lucide-react';
 import Lottie from 'lottie-react';
-import MusicAnimation from 'assets/animation/music.json'; // Kamu bisa ganti dengan animasi lain
+import MusicAnimation from 'assets/animation/music.json'; 
 
 interface BacksoundProps {
   onComplete: () => void;
@@ -17,7 +17,7 @@ const Backsound: React.FC<BacksoundProps> = ({ onComplete }) => {
   // Initialize audio
   useEffect(() => {
     // Ganti dengan path music kamu
-    audioRef.current = new Audio('/assets/bekson.mpeg');
+    audioRef.current = new Audio('./assets/bekson.mpeg');
     audioRef.current.loop = true;
     audioRef.current.volume = 0.3; // Volume 30%
 
