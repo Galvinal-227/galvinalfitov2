@@ -17,7 +17,7 @@ const Backsound: React.FC<BacksoundProps> = ({ onComplete }) => {
   // Initialize audio
   useEffect(() => {
     // Ganti dengan path music kamu
-    audioRef.current = new Audio('/assets/background-music.mp3');
+    audioRef.current = new Audio('/assets/bekson.mpeg');
     audioRef.current.loop = true;
     audioRef.current.volume = 0.3; // Volume 30%
 
