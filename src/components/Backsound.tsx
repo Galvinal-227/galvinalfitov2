@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Volume2, VolumeX, ArrowRight, Music } from 'lucide-react';
-import backgroundMusic from './assets/bekson.mpeg';
+import backgroundMusic from '/bekson.mpeg.mp3';
 
 interface BacksoundProps {
   onComplete: () => void;
