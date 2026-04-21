@@ -5,6 +5,7 @@ import Menu from 'components/navigation/menu'
 import TopNav from 'components/navigation/top-nav'
 import CursorProvider from 'context/cursor'
 import StateProvider, { StateContext } from 'context/state'
+import { MusicProvider } from 'context/MusicContext' // Import MusicProvider
 import { AnimatePresence, motion } from 'framer-motion'
 import { easeDefault, routes } from 'lib/utils'
 import { AboutTransition } from 'pages/about'
@@ -80,34 +81,36 @@ const App = () => {
 
   return (
     <>
-      <StateProvider>
-        <CursorProvider>
-          <Cursor />
-          <Menu />
-          <Page />
-          <motion.button
-            onClick={() => setIsChatbotOpen(!isChatbotOpen)}
-            className="fixed bottom-6 right-6 z-[99999] w-16 h-16 bg-yellow-500 rounded-full shadow-2xl hover:shadow-gray-500/30 transition-all flex items-center justify-center border border-gray-700"
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.95 }}
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ type: "spring", stiffness: 260, damping: 20 }}
-          >
-            <Lottie 
-              animationData={ChatbotAnimation} 
-              loop={true}
-              style={{ width: 40, height: 40 }}
+      <MusicProvider> {/* Bungkus semuanya dengan MusicProvider */}
+        <StateProvider>
+          <CursorProvider>
+            <Cursor />
+            <Menu />
+            <Page />
+            <motion.button
+              onClick={() => setIsChatbotOpen(!isChatbotOpen)}
+              className="fixed bottom-6 right-6 z-[99999] w-16 h-16 bg-yellow-500 rounded-full shadow-2xl hover:shadow-gray-500/30 transition-all flex items-center justify-center border border-gray-700"
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.95 }}
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ type: "spring", stiffness: 260, damping: 20 }}
+            >
+              <Lottie 
+                animationData={ChatbotAnimation} 
+                loop={true}
+                style={{ width: 40, height: 40 }}
+              />
+            </motion.button>
+            
+            {/* ChatBot Component - muncul ketika isChatbotOpen true */}
+            <Chatbot 
+              isOpen={isChatbotOpen} 
+              onClose={() => setIsChatbotOpen(false)} 
             />
-          </motion.button>
-          
-          {/* ChatBot Component - muncul ketika isChatbotOpen true */}
-          <Chatbot 
-            isOpen={isChatbotOpen} 
-            onClose={() => setIsChatbotOpen(false)} 
-          />
-        </CursorProvider>
-      </StateProvider>
+          </CursorProvider>
+        </StateProvider>
+      </MusicProvider>
     </>
   )
 }
