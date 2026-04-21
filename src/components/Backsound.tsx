@@ -61,7 +61,7 @@ const Backsound: React.FC<BacksoundProps> = ({ onComplete }) => {
                     <Volume2 className="h-16 w-16 text-primary" />
                   ) : (
                     <Lottie 
-                      animationData={musicAnimation} 
+                      animationData={Music} 
                       loop={true}
                       autoplay={true}
                       className="h-16 w-16"
