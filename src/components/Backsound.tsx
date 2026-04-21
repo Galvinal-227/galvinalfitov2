@@ -62,7 +62,7 @@ const Backsound: React.FC<BacksoundProps> = ({ onComplete }) => {
                       animationData={Music} 
                       loop={true}
                       autoplay={true}
-                      className="h-16 w-16"
+                      style={{ width: 100, height: 100, cursor: 'default' }}
                     />
                   )}
               </div>
