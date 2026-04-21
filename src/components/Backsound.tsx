@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Volume2, VolumeX, ArrowRight, Music } from 'lucide-react';
+import { Volume2, VolumeX, ArrowRight } from 'lucide-react';
 import { useMusic } from 'context/MusicContext';
 import Music from './assets/animation/music.json';
+import Lottie from 'lottie-react';
 
 interface BacksoundProps {
   onComplete: () => void;
@@ -59,7 +60,12 @@ const Backsound: React.FC<BacksoundProps> = ({ onComplete }) => {
                   {isPlaying ? (
                     <Volume2 className="h-16 w-16 text-primary" />
                   ) : (
-                    <Music className="h-16 w-16 text-primary" />
+                    <Lottie 
+                      animationData={musicAnimation} 
+                      loop={true}
+                      autoplay={true}
+                      className="h-16 w-16"
+                    />
                   )}
                 </div>
               </div>
