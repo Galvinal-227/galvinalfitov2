@@ -21,6 +21,7 @@
     "typecheck": "tsc --project tsconfig.json --noEmit"
   },
   "dependencies": {
+    "@heyputer/puter.js": "^2.0.0",
     "@johh/three-effectcomposer": "^0.1.0",
     "@motionone/utils": "^10.15.1",
     "@studio-freight/react-lenis": "^0.0.26",
