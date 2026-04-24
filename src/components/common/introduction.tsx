@@ -91,7 +91,8 @@ export default function Introduction() {
 
   const [currParagraph, setCurrParagraph] = useState(0)
   const [showBacksound, setShowBacksound] = useState(false)
-  const [showLoading, setShowLoading] = useState(true) // State untuk kontrol loading screen
+  const [showLoading, setShowLoading] = useState(true)
+  const [mortyCursorKey, setMortyCursorKey] = useState(0) // Force re-render key
   const progressRef = useRef<HTMLDivElement | null>(null)
   const currentPr = useMotionValue(0)
 
@@ -139,9 +140,9 @@ export default function Introduction() {
         if (import.meta.env.PROD) {
           await fetchAllImages()
         }
-        // Sembunyikan loading screen dulu sebelum show backsound
+        // Sembunyikan loading screen
         setShowLoading(false)
-        // Tampilkan Backsound prompt setelah loading selesai
+        // Tampilkan Backsound prompt
         setShowBacksound(true)
       }
     })
@@ -150,13 +151,16 @@ export default function Introduction() {
   // Fungsi untuk handle setelah user memilih opsi backsound
   const handleBacksoundComplete = () => {
     setShowBacksound(false)
-    // Lanjut ke portfolio
-    if (setState) setState((prev) => ({ ...prev, isSplashShow: false }))
-    if (setStateCursor)
+    // Reset cursor context sebelum pindah
+    if (setStateCursor) {
       setStateCursor((prev) => ({
         ...prev,
-        element: null
+        element: null,
+        type: 'default'
       }))
+    }
+    // Lanjut ke portfolio
+    if (setState) setState((prev) => ({ ...prev, isSplashShow: false }))
   }
 
   useEffect(() => {
@@ -172,15 +176,38 @@ export default function Introduction() {
       startTitleTextAnimate()
     }, waitingToStart * 2)
 
+    // Set cursor awal
+    if (setStateCursor) {
+      setStateCursor((prev) => ({
+        ...prev,
+        element: mortyCursor.element,
+        type: 'hover'
+      }))
+    }
+
     return () => {
       percentAnimate?.stop()
       titleTextAnimate?.stop()
     }
   }, [])
 
+  // Re-set cursor setiap kali showLoading berubah
+  useEffect(() => {
+    if (showLoading && setStateCursor) {
+      // Refresh cursor dengan key baru
+      setMortyCursorKey(prev => prev + 1)
+      setStateCursor((prev) => ({
+        ...prev,
+        element: mortyCursor.element,
+        type: 'hover'
+      }))
+    }
+  }, [showLoading])
+
   const mortyCursor = {
     element: (
       <motion.img
+        key={mortyCursorKey}
         animate={{ opacity: 0.7, scale: 1 }}
         initial={{ opacity: 0, scale: 0.2 }}
         exit={{ opacity: 0, scale: 0.2 }}
@@ -195,7 +222,7 @@ export default function Introduction() {
 
   return (
     <>
-      {/* Loading Screen - Hanya tampil jika showLoading true */}
+      {/* Loading Screen */}
       {showLoading && (
         <div className="fixed left-0 top-0 z-[9999999] flex h-screen w-full flex-col items-center justify-center bg-white">
           <div className="absolute left-0 top-0 h-[3px] w-[0%] bg-primary" ref={progressRef} />
@@ -239,8 +266,12 @@ export default function Introduction() {
         </div>
       )}
 
-      {/* Backsound Permission Screen */}
-      {showBacksound && <Backsound onComplete={handleBacksoundComplete} />}
+      {/* Backsound Permission Screen - Dengan cursor yang dipertahankan */}
+      {showBacksound && (
+        <div className="fixed left-0 top-0 z-[9999999] flex h-screen w-full items-center justify-center bg-black/80 backdrop-blur-md">
+          <Backsound onComplete={handleBacksoundComplete} />
+        </div>
+      )}
     </>
   )
 }
