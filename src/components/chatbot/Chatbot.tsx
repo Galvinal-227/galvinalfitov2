@@ -71,7 +71,6 @@ const Chatbot = ({ isOpen: externalIsOpen, onClose }: ChatbotProps) => {
         if (puter && typeof puter.ai === 'function') {
           setPuterReady(true);
           setApiStatus('ready');
-          console.log('Puter.js ready');
         } else {
           throw new Error('Puter.ai not available');
         }
@@ -195,7 +194,7 @@ User: "Project apa?" → "Portfolio web, game shooter, web top up."`;
       
       const fullPrompt = `${getSystemPrompt()}\n\nUser: ${message}\n\nAlf AI:`;
       
-      const response = await puter.ai.chat(fullPrompt, { 
+      const response: any = await puter.ai.chat(fullPrompt, { 
         model: selectedModel,
         max_tokens: 150,
         temperature: 0.7
@@ -213,9 +212,8 @@ User: "Project apa?" → "Portfolio web, game shooter, web top up."`;
         aiText = response;
       } else if (response && typeof response === 'object') {
         if (response.message && typeof response.message === 'object') {
-          const msg = response.message as any;
-          if (typeof msg.content === 'string') aiText = msg.content;
-          else if (typeof msg.text === 'string') aiText = msg.text;
+          if (typeof response.message.content === 'string') aiText = response.message.content;
+          else if (typeof response.message.text === 'string') aiText = response.message.text;
         }
         if (!aiText && typeof response.content === 'string') aiText = response.content;
         if (!aiText && typeof response.text === 'string') aiText = response.text;
