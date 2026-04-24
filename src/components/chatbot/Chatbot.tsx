@@ -6,7 +6,8 @@ import {
   Smile, Mic, MicOff,
   Loader2, 
   ChevronUp, ChevronDown, Maximize, Minimize,
-  Cpu, Wifi, WifiOff, Info, Square
+  Cpu, Wifi, WifiOff, Info, Square,
+  User
 } from 'lucide-react';
 import EmojiPicker from 'emoji-picker-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -49,7 +50,6 @@ const Chatbot = ({ isOpen: externalIsOpen, onClose }: ChatbotProps) => {
   ]);
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [isTyping, setIsTyping] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [isListening, setIsListening] = useState(false);
@@ -58,7 +58,6 @@ const Chatbot = ({ isOpen: externalIsOpen, onClose }: ChatbotProps) => {
   const [apiStatus, setApiStatus] = useState('loading');
   const [selectedModel, setSelectedModel] = useState('gpt-5-nano');
   const [puterLoaded, setPuterLoaded] = useState(false);
-  const [isGenerating, setIsGenerating] = useState(false);
   
   // Refs
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -67,7 +66,6 @@ const Chatbot = ({ isOpen: externalIsOpen, onClose }: ChatbotProps) => {
   const emojiPickerRef = useRef<HTMLDivElement>(null);
   const recognitionRef = useRef<any>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
-  const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Available models
   const availableModels = [
@@ -176,9 +174,6 @@ User: "Project apa?" → "Portfolio, game shooter, web top up, UI/UX."`;
       if (abortControllerRef.current) {
         abortControllerRef.current.abort();
       }
-      if (typingTimeoutRef.current) {
-        clearTimeout(typingTimeoutRef.current);
-      }
     };
   }, []);
 
@@ -189,56 +184,16 @@ User: "Project apa?" → "Portfolio, game shooter, web top up, UI/UX."`;
 
   useEffect(() => {
     scrollToBottom();
-  }, [messages, isTyping]);
+  }, [messages]);
 
   // Fungsi untuk stop generating
   const stopGenerating = () => {
-    // Abort API call
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();
       abortControllerRef.current = null;
     }
-    
-    // Stop typing simulation
-    if (typingTimeoutRef.current) {
-      clearTimeout(typingTimeoutRef.current);
-      typingTimeoutRef.current = null;
-    }
-    
-    // Update states
-    setIsGenerating(false);
-    setIsTyping(false);
     setIsLoading(false);
-    
-    // Add notification
     addSystemNotification("⏹️ AI dihentikan.");
-  };
-
-  const simulateTyping = async (text: string, callback: (typedText: string) => void, signal?: AbortSignal) => {
-    setIsTyping(true);
-    setIsGenerating(true);
-    let displayedText = "";
-    const speed = text.length > 300 ? 10 : 20;
-    
-    for (let i = 0; i < text.length; i++) {
-      // Check if aborted
-      if (signal?.aborted) {
-        // Save partial response
-        callback(displayedText + "...");
-        setIsTyping(false);
-        setIsGenerating(false);
-        return;
-      }
-      
-      displayedText += text[i];
-      callback(displayedText);
-      await new Promise(resolve => {
-        const timeout = setTimeout(resolve, speed);
-        typingTimeoutRef.current = timeout;
-      });
-    }
-    setIsTyping(false);
-    setIsGenerating(false);
   };
 
   const addSystemNotification = (text: string) => {
@@ -273,13 +228,11 @@ User: "Project apa?" → "Portfolio, game shooter, web top up, UI/UX."`;
       
       const fullPrompt = `${getSystemPrompt()}\n\nPertanyaan: ${message}\n\nJawab singkat (maksimal 2 kalimat):`;
       
-      // Gunakan puter.ai.chat
       const response = await window.puter.ai.chat(fullPrompt, { 
         model: selectedModel,
         max_tokens: 100
       });
       
-      // Check if aborted
       if (signal?.aborted) {
         return "[DIBERHENTIKAN]";
       }
@@ -304,7 +257,6 @@ User: "Project apa?" → "Portfolio, game shooter, web top up, UI/UX."`;
       return shortResponse;
       
     } catch (error: any) {
-      // Check if aborted
       if (error?.name === 'AbortError' || signal?.aborted) {
         return "[DIBERHENTIKAN]";
       }
@@ -329,7 +281,7 @@ User: "Project apa?" → "Portfolio, game shooter, web top up, UI/UX."`;
     }
     
     if (lowerMessage.includes('project')) {
-      return "Portfolio web, game shooter, web top up, UI/UX.";
+      return "Portfolio web, web TPQ, web kelas, UI/UX.";
     }
     
     if (lowerMessage.includes('sekolah')) {
@@ -337,7 +289,7 @@ User: "Project apa?" → "Portfolio, game shooter, web top up, UI/UX."`;
     }
     
     if (lowerMessage.includes('kontak')) {
-      return "Email: galvin.alfito@example.com";
+      return "Email: galvinalfito@gmail.com";
     }
     
     if (lowerMessage.includes('terima kasih')) {
@@ -347,6 +299,7 @@ User: "Project apa?" → "Portfolio, game shooter, web top up, UI/UX."`;
     return "Bisa tanya soal skill, project, atau kontak.";
   };
 
+  // PERBAIKAN UTAMA: LANGSUNG TAMPILIN RESPONSE TANPA ANIMASI TYPING
   const sendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!inputMessage.trim() || isLoading) return;
@@ -371,22 +324,20 @@ User: "Project apa?" → "Portfolio, game shooter, web top up, UI/UX."`;
     setMessageId(prev => prev + 1);
     setMessages(prev => [...prev, userMessageObj]);
     setIsLoading(true);
-    setIsGenerating(true);
 
     // Buat AbortController baru
     abortControllerRef.current = new AbortController();
     const signal = abortControllerRef.current.signal;
 
     try {
-      // Panggil Puter.js AI dengan signal
+      // Panggil Puter.js AI
       const aiResponse = await chatWithPuter(userMessage, signal);
       
       // Check if aborted
       if (signal.aborted) {
-        // Save partial message
         const aiMessageObj: Message = {
           id: messageId + 1,
-          text: aiResponse === "[DIBERHENTIKAN]" ? "⏹️ Diberhentikan." : aiResponse,
+          text: "⏹️ Diberhentikan.",
           sender: 'ai',
           timestamp: new Date(),
           username: 'Alf AI'
@@ -395,14 +346,14 @@ User: "Project apa?" → "Portfolio, game shooter, web top up, UI/UX."`;
         setMessageId(prev => prev + 2);
         setMessages(prev => [...prev, aiMessageObj]);
         setIsLoading(false);
-        setIsGenerating(false);
         abortControllerRef.current = null;
         return;
       }
       
+      // LANGSUNG TAMPILIN RESPONSE (tanpa animasi typing)
       const aiMessageObj: Message = {
         id: messageId + 1,
-        text: "",
+        text: aiResponse,
         sender: 'ai',
         timestamp: new Date(),
         username: 'Alf AI'
@@ -410,18 +361,6 @@ User: "Project apa?" → "Portfolio, game shooter, web top up, UI/UX."`;
       
       setMessageId(prev => prev + 2);
       setMessages(prev => [...prev, aiMessageObj]);
-      
-      await simulateTyping(aiResponse, (typedText) => {
-        setMessages(prev => {
-          const newMessages = [...prev];
-          const lastIndex = newMessages.length - 1;
-          newMessages[lastIndex] = {
-            ...aiMessageObj,
-            text: typedText
-          };
-          return newMessages;
-        });
-      }, signal);
 
     } catch (error: any) {
       if (error?.name === 'AbortError' || signal.aborted) {
@@ -453,7 +392,6 @@ User: "Project apa?" → "Portfolio, game shooter, web top up, UI/UX."`;
       }
     } finally {
       setIsLoading(false);
-      setIsGenerating(false);
       abortControllerRef.current = null;
     }
   };
@@ -669,6 +607,10 @@ User: "Project apa?" → "Portfolio, game shooter, web top up, UI/UX."`;
                   animationData={IconAi} 
                   loop={true} 
                   style={{ width: '100%', height: '100%' }}
+                  rendererSettings={{
+                    preserveAspectRatio: 'xMidYMid slice',
+                    progressiveLoad: false
+                  }}
                 />
               </div>
               <div>
@@ -743,7 +685,7 @@ User: "Project apa?" → "Portfolio, game shooter, web top up, UI/UX."`;
                                 msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.3 }}
+                      transition={{ duration: 0.2 }} // Lebih cepat
                     >
                       {msg.sender === 'system' ? (
                         <div className="w-full max-w-[85%]">
@@ -760,9 +702,13 @@ User: "Project apa?" → "Portfolio, game shooter, web top up, UI/UX."`;
                           <div className="flex items-center gap-2 mb-1">
                             <div className="w-5 h-5 rounded-full flex items-center justify-center overflow-hidden">
                               <Lottie 
-                                animationData={IconAi} 
+                                animationData={UserIcon} 
                                 loop={true} 
                                 style={{ width: '100%', height: '100%' }}
+                                rendererSettings={{
+                                  preserveAspectRatio: 'xMidYMid slice',
+                                  progressiveLoad: false
+                                }}
                               />
                             </div>
                             <span className="text-xs font-medium text-gray-300">
@@ -785,8 +731,8 @@ User: "Project apa?" → "Portfolio, game shooter, web top up, UI/UX."`;
                   ))}
                 </AnimatePresence>
                 
-                {/* Typing Indicator dengan tombol Stop */}
-                {(isLoading || isTyping) && (
+                {/* Loading Indicator Sederhana (tanpa animasi typing) */}
+                {isLoading && (
                   <motion.div 
                     className="flex justify-start"
                     initial={{ opacity: 0 }}
@@ -794,24 +740,8 @@ User: "Project apa?" → "Portfolio, game shooter, web top up, UI/UX."`;
                   >
                     <div className="bg-gray-900/60 backdrop-blur-md rounded-xl p-3 border border-gray-700/30">
                       <div className="flex items-center gap-3">
-                        <div className="flex gap-1">
-                          <motion.div 
-                            className="w-2 h-2 bg-blue-500 rounded-full"
-                            animate={{ y: [0, -4, 0] }}
-                            transition={{ duration: 0.6, repeat: Infinity }}
-                          />
-                          <motion.div 
-                            className="w-2 h-2 bg-blue-500 rounded-full"
-                            animate={{ y: [0, -4, 0] }}
-                            transition={{ duration: 0.6, repeat: Infinity, delay: 0.2 }}
-                          />
-                          <motion.div 
-                            className="w-2 h-2 bg-blue-500 rounded-full"
-                            animate={{ y: [0, -4, 0] }}
-                            transition={{ duration: 0.6, repeat: Infinity, delay: 0.4 }}
-                          />
-                        </div>
-                        <span className="text-xs text-gray-400">AI sedang mengetik...</span>
+                        <Loader2 className="w-4 h-4 animate-spin text-blue-400" />
+                        <span className="text-xs text-gray-400">AI sedang berpikir...</span>
                         
                         {/* STOP BUTTON */}
                         <button
