@@ -1,3 +1,4 @@
+// components/Backsound.tsx - versi simpel tanpa cursor
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Volume2, VolumeX, ArrowRight } from 'lucide-react';
@@ -13,7 +14,6 @@ const Backsound: React.FC<BacksoundProps> = ({ onComplete }) => {
   const [showPrompt, setShowPrompt] = useState(true);
   const [hasInteracted, setHasInteracted] = useState(false);
   
-  // Pake context
   const { isPlaying, enableMusic, disableMusic, toggleMusic } = useMusic();
 
   const handleEnableMusic = async () => {
@@ -49,22 +49,23 @@ const Backsound: React.FC<BacksoundProps> = ({ onComplete }) => {
             animate={{ scale: 1, opacity: 1 }}
             transition={{ delay: 0.2, duration: 0.5 }}
           >
+            {/* konten sama seperti sebelumnya, tapi tanpa cursor */}
             <motion.div
               className="mb-6 flex justify-center"
               animate={{ y: [0, -10, 0] }}
               transition={{ duration: 3, repeat: Infinity }}
             >
               <div className="relative">
-                  {isPlaying ? (
-                    <Volume2 className="h-16 w-16 text-primary" />
-                  ) : (
-                    <Lottie 
-                      animationData={Music} 
-                      loop={true}
-                      autoplay={true}
-                      style={{ width: 100, height: 100, cursor: 'default' }}
-                    />
-                  )}
+                {isPlaying ? (
+                  <Volume2 className="h-16 w-16 text-primary" />
+                ) : (
+                  <Lottie 
+                    animationData={Music} 
+                    loop={true}
+                    autoplay={true}
+                    style={{ width: 100, height: 100, cursor: 'default' }}
+                  />
+                )}
               </div>
             </motion.div>
 
@@ -95,14 +96,14 @@ const Backsound: React.FC<BacksoundProps> = ({ onComplete }) => {
               >
                 <button
                   onClick={handleEnableMusic}
-                  className="flex items-center justify-center gap-2 rounded-lg bg-primary px-6 py-3 font-spartan text-sm font-light text-white transition-all hover:bg-primary/80 hover:scale-105"
+                  className="flex cursor-pointer items-center justify-center gap-2 rounded-lg bg-primary px-6 py-3 font-spartan text-sm font-light text-white transition-all hover:bg-primary/80 hover:scale-105"
                 >
                   <Volume2 className="h-4 w-4" />
                   <span>Ya, Izinkan</span>
                 </button>
                 <button
                   onClick={handleDisableMusic}
-                  className="flex items-center justify-center gap-2 rounded-lg border border-primary/20 bg-transparent px-6 py-3 font-spartan text-sm font-light text-primary transition-all hover:bg-primary/5"
+                  className="flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-primary/20 bg-transparent px-6 py-3 font-spartan text-sm font-light text-primary transition-all hover:bg-primary/5"
                 >
                   <VolumeX className="h-4 w-4" />
                   <span>Tidak, Lanjut</span>
@@ -148,7 +149,7 @@ const Backsound: React.FC<BacksoundProps> = ({ onComplete }) => {
                   
                   <button
                     onClick={toggleMusic}
-                    className="rounded-full bg-primary/5 p-2 transition-all hover:bg-primary/10 border border-primary/20"
+                    className="rounded-full bg-primary/5 p-2 transition-all hover:bg-primary/10 border border-primary/20 cursor-pointer"
                     title={isPlaying ? "Matikan Music" : "Nyalakan Music"}
                   >
                     {isPlaying ? (
@@ -159,15 +160,13 @@ const Backsound: React.FC<BacksoundProps> = ({ onComplete }) => {
                   </button>
                 </div>
 
-                <motion.button
+                <button
                   onClick={handleContinue}
-                  className="group relative mx-auto flex items-center justify-center gap-2 rounded-lg bg-primary px-8 py-3 font-spartan text-sm font-light text-white transition-all hover:bg-primary/80 hover:scale-105"
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
+                  className="group relative mx-auto flex cursor-pointer items-center justify-center gap-2 rounded-lg bg-primary px-8 py-3 font-spartan text-sm font-light text-white transition-all hover:bg-primary/80"
                 >
                   <span>Lanjutkan ke Portfolio</span>
                   <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-                </motion.button>
+                </button>
               </motion.div>
             )}
 
