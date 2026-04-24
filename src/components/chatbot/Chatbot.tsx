@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import puter from '@heyputer/puter.js';
-import IconAi from 'assets/animation/Chatbot.json'
-import UserIcon from 'assets/animation/Global Network.json'
+import IconAi from 'assets/animation/Chatbot.json';
+import UserIcon from 'assets/animation/Global Network.json';
 import { 
   Trash, Send, X, 
   Smile, Mic, MicOff,
@@ -71,6 +71,7 @@ const Chatbot = ({ isOpen: externalIsOpen, onClose }: ChatbotProps) => {
         if (puter && typeof puter.ai === 'function') {
           setPuterReady(true);
           setApiStatus('ready');
+          console.log('Puter.js ready');
         } else {
           throw new Error('Puter.ai not available');
         }
@@ -80,7 +81,6 @@ const Chatbot = ({ isOpen: externalIsOpen, onClose }: ChatbotProps) => {
         setPuterReady(false);
       }
     };
-
     initPuter();
   }, []);
 
@@ -187,14 +187,13 @@ User: "Project apa?" → "Portfolio web, game shooter, web top up."`;
   const chatWithPuter = async (message: string, signal?: AbortSignal): Promise<string> => {
     if (!puterReady || !puter.ai) {
       setApiStatus('error');
-      addSystemNotification("⚠️ AI belum siap. Tunggu sebentar...");
       return getMockResponse(message);
     }
 
     try {
       setApiStatus('loading');
       
-      const fullPrompt = `${getSystemPrompt()}\n\nUser: ${message}\n\nAlf AI (jawab singkat maksimal 2 kalimat):`;
+      const fullPrompt = `${getSystemPrompt()}\n\nUser: ${message}\n\nAlf AI:`;
       
       const response = await puter.ai.chat(fullPrompt, { 
         model: selectedModel,
@@ -209,15 +208,21 @@ User: "Project apa?" → "Portfolio web, game shooter, web top up."`;
       setApiStatus('ready');
       
       let aiText = '';
+      
       if (typeof response === 'string') {
         aiText = response;
-      } else if (response && response.message?.content) {
-        aiText = response.message.content;
-      } else if (response && response.content) {
-        aiText = response.content;
-      } else if (response && response.text) {
-        aiText = response.text;
-      } else {
+      } else if (response && typeof response === 'object') {
+        if (response.message && typeof response.message === 'object') {
+          const msg = response.message as any;
+          if (typeof msg.content === 'string') aiText = msg.content;
+          else if (typeof msg.text === 'string') aiText = msg.text;
+        }
+        if (!aiText && typeof response.content === 'string') aiText = response.content;
+        if (!aiText && typeof response.text === 'string') aiText = response.text;
+        if (!aiText && typeof response.response === 'string') aiText = response.response;
+      }
+      
+      if (!aiText) {
         aiText = getMockResponse(message);
       }
       
@@ -231,7 +236,6 @@ User: "Project apa?" → "Portfolio web, game shooter, web top up."`;
       if (error?.name === 'AbortError' || signal?.aborted) {
         return "[DIBERHENTIKAN]";
       }
-      
       console.error('Puter.ai Error:', error);
       setApiStatus('error');
       return getMockResponse(message);
@@ -244,27 +248,21 @@ User: "Project apa?" → "Portfolio web, game shooter, web top up."`;
     if (lowerMessage.includes('halo') || lowerMessage.includes('hai')) {
       return "Halo! 👋 Ada yang bisa saya bantu?";
     }
-    
     if (lowerMessage.includes('skill')) {
       return "React, JS, Tailwind, Node.js dasar.";
     }
-    
     if (lowerMessage.includes('project')) {
       return "Portfolio web, game shooter, web top up, UI/UX.";
     }
-    
     if (lowerMessage.includes('sekolah')) {
       return "SMKN 2 Nganjuk, kelas 11 PPLG.";
     }
-    
     if (lowerMessage.includes('kontak')) {
       return "Email: galvin.alfito@example.com";
     }
-    
     if (lowerMessage.includes('terima kasih')) {
       return "Sama-sama! 😊";
     }
-    
     return "Bisa tanya soal skill, project, atau kontak saya.";
   };
 
@@ -307,7 +305,6 @@ User: "Project apa?" → "Portfolio web, game shooter, web top up."`;
           timestamp: new Date(),
           username: 'Alf AI'
         };
-        
         setMessageId(prev => prev + 2);
         setMessages(prev => [...prev, aiMessageObj]);
         setIsLoading(false);
@@ -335,22 +332,17 @@ User: "Project apa?" → "Portfolio web, game shooter, web top up."`;
           timestamp: new Date(),
           username: 'Alf AI'
         };
-        
         setMessageId(prev => prev + 2);
         setMessages(prev => [...prev, aiMessageObj]);
       } else {
         console.error('Error:', error);
-        
-        const errorMessage = "Maaf, ada error. Coba lagi ya.";
-        
         const errorMessageObj: Message = {
           id: messageId + 1,
-          text: errorMessage,
+          text: "Maaf, ada error. Coba lagi ya.",
           sender: 'ai',
           timestamp: new Date(),
           username: 'Alf AI'
         };
-        
         setMessageId(prev => prev + 2);
         setMessages(prev => [...prev, errorMessageObj]);
       }
@@ -362,7 +354,6 @@ User: "Project apa?" → "Portfolio web, game shooter, web top up."`;
 
   const clearChat = () => {
     stopGenerating();
-    
     if (window.confirm("Yakin mau mulai percakapan baru?")) {
       setMessages([{
         id: 1,
@@ -380,7 +371,6 @@ User: "Project apa?" → "Portfolio web, game shooter, web top up."`;
       addSystemNotification("Browser tidak support voice recognition.");
       return;
     }
-    
     if (isListening) {
       recognitionRef.current.stop();
       setIsListening(false);
@@ -424,14 +414,11 @@ User: "Project apa?" → "Portfolio web, game shooter, web top up."`;
         <div className="bg-transparent backdrop-blur-sm border border-gray-600/50 rounded-lg p-2">
           <div className="flex items-start gap-2">
             <Info className="w-3 h-3 text-gray-400 mt-0.5 flex-shrink-0" />
-            <div className="text-xs text-gray-300">
-              {message.text}
-            </div>
+            <div className="text-xs text-gray-300">{message.text}</div>
           </div>
         </div>
       );
     }
-    
     return <div className="whitespace-pre-wrap break-words text-sm text-gray-300">{message.text}</div>;
   };
 
@@ -444,7 +431,6 @@ User: "Project apa?" → "Portfolio web, game shooter, web top up."`;
         top: '20px'
       };
     }
-    
     if (isMinimized) {
       return {
         width: '320px',
@@ -453,7 +439,6 @@ User: "Project apa?" → "Portfolio web, game shooter, web top up."`;
         top: '20px'
       };
     }
-    
     return {
       width: '450px',
       height: '600px',
@@ -484,30 +469,13 @@ User: "Project apa?" → "Portfolio web, game shooter, web top up."`;
             boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)'
           }}
           initial={{ opacity: 0, scale: 0.8, y: 20 }}
-          animate={{ 
-            opacity: 1, 
-            scale: 1, 
-            y: 0,
-            transition: {
-              type: "spring",
-              stiffness: 200,
-              damping: 25
-            }
-          }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.8, y: 20 }}
         >
           <div className="p-3 rounded-t-xl flex justify-between items-center border-b border-gray-700/30" style={{ backgroundColor: 'rgba(17, 24, 39, 0.8)' }}>
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 rounded-full flex items-center justify-center overflow-hidden">
-                <Lottie 
-                  animationData={IconAi} 
-                  loop={true} 
-                  style={{ width: '100%', height: '100%' }}
-                  rendererSettings={{
-                    preserveAspectRatio: 'xMidYMid slice',
-                    progressiveLoad: false
-                  }}
-                />
+                <Lottie animationData={IconAi} loop={true} style={{ width: '100%', height: '100%' }} />
               </div>
               <div>
                 <h3 className="font-bold text-white text-sm">Alf AI</h3>
@@ -520,34 +488,18 @@ User: "Project apa?" → "Portfolio web, game shooter, web top up."`;
               </div>
             </div>
             <div className="flex gap-1">
-              <button 
-                onClick={toggleFullscreen}
-                className="p-2 hover:bg-gray-700/50 rounded-lg transition"
-                title={isFullscreen ? "Exit Fullscreen" : "Fullscreen"}
-              >
+              <button onClick={toggleFullscreen} className="p-2 hover:bg-gray-700/50 rounded-lg transition">
                 {isFullscreen ? <Minimize className="w-4 h-4 text-white" /> : <Maximize className="w-4 h-4 text-white" />}
               </button>
               {!isFullscreen && (
-                <button 
-                  onClick={() => setIsMinimized(!isMinimized)} 
-                  className="p-2 hover:bg-gray-700/50 rounded-lg transition"
-                  title={isMinimized ? "Maximize" : "Minimize"}
-                >
+                <button onClick={() => setIsMinimized(!isMinimized)} className="p-2 hover:bg-gray-700/50 rounded-lg transition">
                   {isMinimized ? <ChevronUp className="w-4 h-4 text-white" /> : <ChevronDown className="w-4 h-4 text-white" />}
                 </button>
               )}
-              <button 
-                onClick={clearChat} 
-                className="p-2 hover:bg-gray-700/50 rounded-lg transition"
-                title="Bersihkan chat"
-              >
+              <button onClick={clearChat} className="p-2 hover:bg-gray-700/50 rounded-lg transition">
                 <Trash className="w-4 h-4 text-white" />
               </button>
-              <button 
-                onClick={onClose} 
-                className="p-2 hover:bg-red-500/20 rounded-lg transition"
-                title="Tutup"
-              >
+              <button onClick={onClose} className="p-2 hover:bg-red-500/20 rounded-lg transition">
                 <X className="w-4 h-4 text-white" />
               </button>
             </div>
@@ -557,11 +509,7 @@ User: "Project apa?" → "Portfolio web, game shooter, web top up."`;
             <>
               <div className="flex-1 overflow-y-auto p-3 space-y-3">
                 {!puterReady && (
-                  <motion.div 
-                    className="flex justify-center"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                  >
+                  <motion.div className="flex justify-center">
                     <div className="bg-gray-900/60 backdrop-blur-md rounded-xl p-4 border border-gray-700/30">
                       <div className="flex items-center gap-3">
                         <Loader2 className="w-4 h-4 animate-spin text-blue-400" />
@@ -575,49 +523,24 @@ User: "Project apa?" → "Portfolio web, game shooter, web top up."`;
                   {messages.map((msg) => (
                     <motion.div
                       key={msg.id}
-                      className={`flex ${msg.sender === 'system' ? 'justify-center' : 
-                                msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+                      className={`flex ${msg.sender === 'system' ? 'justify-center' : msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.2 }}
                     >
                       {msg.sender === 'system' ? (
-                        <div className="w-full max-w-[85%]">
-                          {renderMessageContent(msg)}
-                        </div>
+                        <div className="w-full max-w-[85%]">{renderMessageContent(msg)}</div>
                       ) : (
-                        <div 
-                          className={`max-w-[85%] rounded-xl p-3 ${
-                            msg.sender === 'user' ? 
-                            'bg-blue-600/80 text-white' : 
-                            'bg-gray-800/80 text-white'
-                          }`}
-                        >
+                        <div className={`max-w-[85%] rounded-xl p-3 ${msg.sender === 'user' ? 'bg-blue-600/80 text-white' : 'bg-gray-800/80 text-white'}`}>
                           <div className="flex items-center gap-2 mb-1">
                             <div className="w-5 h-5 rounded-full flex items-center justify-center overflow-hidden">
-                              <Lottie 
-                                animationData={msg.sender === 'user' ? UserIcon : IconAi} 
-                                loop={true} 
-                                style={{ width: '100%', height: '100%' }}
-                                rendererSettings={{
-                                  preserveAspectRatio: 'xMidYMid slice',
-                                  progressiveLoad: false
-                                }}
-                              />
+                              <Lottie animationData={msg.sender === 'user' ? UserIcon : IconAi} loop={true} style={{ width: '100%', height: '100%' }} />
                             </div>
-                            <span className="text-xs font-medium text-gray-300">
-                              {msg.sender === 'user' ? 'Kamu' : 'Alf AI'}
-                            </span>
+                            <span className="text-xs font-medium text-gray-300">{msg.sender === 'user' ? 'Kamu' : 'Alf AI'}</span>
                           </div>
-                          
-                          <div className="whitespace-pre-wrap break-words text-sm">
-                            {renderMessageContent(msg)}
-                          </div>
-                          
+                          <div className="whitespace-pre-wrap break-words text-sm">{renderMessageContent(msg)}</div>
                           <div className="flex items-center justify-end mt-1 pt-1 border-t border-gray-700/30">
-                            <div className="text-xs text-gray-500">
-                              {formatTime(msg.timestamp)}
-                            </div>
+                            <div className="text-xs text-gray-500">{formatTime(msg.timestamp)}</div>
                           </div>
                         </div>
                       )}
@@ -626,21 +549,12 @@ User: "Project apa?" → "Portfolio web, game shooter, web top up."`;
                 </AnimatePresence>
                 
                 {isLoading && (
-                  <motion.div 
-                    className="flex justify-start"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                  >
+                  <motion.div className="flex justify-start">
                     <div className="bg-gray-800/80 backdrop-blur-md rounded-xl p-3 border border-gray-700/30">
                       <div className="flex items-center gap-3">
                         <Loader2 className="w-4 h-4 animate-spin text-blue-400" />
                         <span className="text-xs text-gray-400">AI sedang berpikir...</span>
-                        
-                        <button
-                          onClick={stopGenerating}
-                          className="ml-2 p-1 bg-red-500/20 hover:bg-red-500/40 rounded-lg transition flex items-center gap-1"
-                          title="Hentikan"
-                        >
+                        <button onClick={stopGenerating} className="ml-2 p-1 bg-red-500/20 hover:bg-red-500/40 rounded-lg transition flex items-center gap-1">
                           <Square className="w-3 h-3 text-red-400" />
                           <span className="text-xs text-red-400">Stop</span>
                         </button>
@@ -669,11 +583,7 @@ User: "Project apa?" → "Portfolio web, game shooter, web top up."`;
                       <button
                         key={model.id}
                         onClick={() => changeModel(model.id)}
-                        className={`px-2 py-0.5 rounded text-xs transition ${
-                          selectedModel === model.id ? 
-                          'bg-blue-600/70 text-white' : 
-                          'bg-gray-700/50 text-gray-400 hover:bg-gray-600/50'
-                        }`}
+                        className={`px-2 py-0.5 rounded text-xs transition ${selectedModel === model.id ? 'bg-blue-600/70 text-white' : 'bg-gray-700/50 text-gray-400 hover:bg-gray-600/50'}`}
                       >
                         {model.name.split('-')[0]}
                       </button>
@@ -682,23 +592,11 @@ User: "Project apa?" → "Portfolio web, game shooter, web top up."`;
                 </div>
                 
                 <form onSubmit={sendMessage} className="flex gap-2">
-                  <button 
-                    type="button" 
-                    onClick={() => setShowEmojiPicker(!showEmojiPicker)} 
-                    className="flex-shrink-0 w-9 h-9 flex items-center justify-center bg-gray-800/50 backdrop-blur-sm border border-gray-700/30 rounded-lg hover:bg-gray-700/50 transition"
-                  >
+                  <button type="button" onClick={() => setShowEmojiPicker(!showEmojiPicker)} className="flex-shrink-0 w-9 h-9 flex items-center justify-center bg-gray-800/50 backdrop-blur-sm border border-gray-700/30 rounded-lg hover:bg-gray-700/50 transition">
                     <Smile className="w-4 h-4 text-gray-400" />
                   </button>
                   
-                  <button 
-                    type="button" 
-                    onClick={toggleListening} 
-                    className={`flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-lg transition ${
-                      isListening ? 
-                      'bg-red-600/70 text-white' : 
-                      'bg-gray-800/50 border border-gray-700/30 text-gray-400 hover:bg-gray-700/50'
-                    }`}
-                  >
+                  <button type="button" onClick={toggleListening} className={`flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-lg transition ${isListening ? 'bg-red-600/70 text-white' : 'bg-gray-800/50 border border-gray-700/30 text-gray-400 hover:bg-gray-700/50'}`}>
                     {isListening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
                   </button>
                   
@@ -719,11 +617,7 @@ User: "Project apa?" → "Portfolio web, game shooter, web top up."`;
                     whileTap={{ scale: 0.95 }}
                     disabled={isLoading || !inputMessage.trim() || !puterReady}
                   >
-                    {isLoading ? (
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                    ) : (
-                      <Send className="w-4 h-4" />
-                    )}
+                    {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
                   </motion.button>
                 </form>
               </div>
