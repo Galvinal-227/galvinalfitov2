@@ -92,12 +92,27 @@ export default function Introduction() {
   const [currParagraph, setCurrParagraph] = useState(0)
   const [showBacksound, setShowBacksound] = useState(false)
   const [showLoading, setShowLoading] = useState(true)
-  const [mortyCursorKey, setMortyCursorKey] = useState(0) // Force re-render key
   const progressRef = useRef<HTMLDivElement | null>(null)
   const currentPr = useMotionValue(0)
 
   const count = useMotionValue(0)
   const rounded = useTransform(count, (value) => Math.round(value))
+
+  // DEFINE MORTY CURSOR DI SINI (sebelum digunakan)
+  const mortyCursor = {
+    element: (
+      <motion.img
+        animate={{ opacity: 0.7, scale: 1 }}
+        initial={{ opacity: 0, scale: 0.2 }}
+        exit={{ opacity: 0, scale: 0.2 }}
+        src={Morty}
+        alt="going to be great"
+        className="h-full w-full object-cover"
+      />
+    ),
+    key: 'goingtobegreat',
+    type: 'hover' as const
+  }
 
   const fetchAllImages = async () => {
     const images = (await fetchAllImagesFromTxt())?.map((img) => {
@@ -140,32 +155,40 @@ export default function Introduction() {
         if (import.meta.env.PROD) {
           await fetchAllImages()
         }
-        // Sembunyikan loading screen
         setShowLoading(false)
-        // Tampilkan Backsound prompt
         setShowBacksound(true)
       }
     })
   }
 
-  // Fungsi untuk handle setelah user memilih opsi backsound
   const handleBacksoundComplete = () => {
     setShowBacksound(false)
-    // Reset cursor context sebelum pindah
+    // Reset cursor ke default
     if (setStateCursor) {
-      setStateCursor((prev) => ({
-        ...prev,
+      setStateCursor({
         element: null,
-        type: 'default'
-      }))
+        key: null,
+        type: null
+      } as any)
     }
     // Lanjut ke portfolio
-    if (setState) setState((prev) => ({ ...prev, isSplashShow: false }))
+    if (setState) {
+      setState((prev) => ({ ...prev, isSplashShow: false }))
+    }
   }
 
   useEffect(() => {
     if (import.meta.env.PROD) {
       fetchAllImages()
+    }
+
+    // Set cursor awal
+    if (setStateCursor) {
+      setStateCursor({
+        element: mortyCursor.element,
+        key: mortyCursor.key,
+        type: mortyCursor.type
+      } as any)
     }
 
     setTimeout(() => {
@@ -176,49 +199,19 @@ export default function Introduction() {
       startTitleTextAnimate()
     }, waitingToStart * 2)
 
-    // Set cursor awal
-    if (setStateCursor) {
-      setStateCursor((prev) => ({
-        ...prev,
-        element: mortyCursor.element,
-        type: 'hover'
-      }))
-    }
-
     return () => {
       percentAnimate?.stop()
       titleTextAnimate?.stop()
+      // Cleanup cursor
+      if (setStateCursor) {
+        setStateCursor({
+          element: null,
+          key: null,
+          type: null
+        } as any)
+      }
     }
   }, [])
-
-  // Re-set cursor setiap kali showLoading berubah
-  useEffect(() => {
-    if (showLoading && setStateCursor) {
-      // Refresh cursor dengan key baru
-      setMortyCursorKey(prev => prev + 1)
-      setStateCursor((prev) => ({
-        ...prev,
-        element: mortyCursor.element,
-        type: 'hover'
-      }))
-    }
-  }, [showLoading])
-
-  const mortyCursor = {
-    element: (
-      <motion.img
-        key={mortyCursorKey}
-        animate={{ opacity: 0.7, scale: 1 }}
-        initial={{ opacity: 0, scale: 0.2 }}
-        exit={{ opacity: 0, scale: 0.2 }}
-        src={Morty}
-        alt="going to be great"
-        className="h-full w-full object-cover"
-      />
-    ),
-    key: 'goingtobegreat',
-    type: 'hover'
-  }
 
   return (
     <>
@@ -226,7 +219,7 @@ export default function Introduction() {
       {showLoading && (
         <div className="fixed left-0 top-0 z-[9999999] flex h-screen w-full flex-col items-center justify-center bg-white">
           <div className="absolute left-0 top-0 h-[3px] w-[0%] bg-primary" ref={progressRef} />
-          <WithCursorElement state={{ element: mortyCursor as any }}>
+          <WithCursorElement state={mortyCursor as any}>
             <motion.div
               initial={{ y: '4vh', opacity: 0, display: 'flex', scale: 0.9 }}
               animate={{ y: 0, opacity: 1, display: 'flex', scale: 1 }}
@@ -266,12 +259,8 @@ export default function Introduction() {
         </div>
       )}
 
-      {/* Backsound Permission Screen - Dengan cursor yang dipertahankan */}
-      {showBacksound && (
-        <div className="fixed left-0 top-0 z-[9999999] flex h-screen w-full items-center justify-center bg-black/80 backdrop-blur-md">
-          <Backsound onComplete={handleBacksoundComplete} />
-        </div>
-      )}
+      {/* Backsound Permission Screen */}
+      {showBacksound && <Backsound onComplete={handleBacksoundComplete} />}
     </>
   )
 }
