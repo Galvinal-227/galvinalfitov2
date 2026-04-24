@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import * as puter from '@heyputer/puter.js';
+import puter from '@heyputer/puter.js';
 import IconAi from 'assets/animation/Chatbot.json'
 import UserIcon from 'assets/animation/Global Network.json'
 import { 
@@ -13,7 +13,6 @@ import EmojiPicker from 'emoji-picker-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Lottie from 'lottie-react';
 
-// Type definitions
 interface Message {
   id: number;
   text: string;
@@ -30,7 +29,6 @@ interface ChatbotProps {
 
 const Chatbot = ({ isOpen: externalIsOpen, onClose }: ChatbotProps) => {
   
-  // State
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -52,7 +50,6 @@ const Chatbot = ({ isOpen: externalIsOpen, onClose }: ChatbotProps) => {
   const [selectedModel, setSelectedModel] = useState('gpt-4');
   const [puterReady, setPuterReady] = useState(false);
   
-  // Refs
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const chatWindowRef = useRef<HTMLDivElement>(null);
@@ -60,7 +57,6 @@ const Chatbot = ({ isOpen: externalIsOpen, onClose }: ChatbotProps) => {
   const recognitionRef = useRef<any>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
 
-  // Available models dari Puter.js
   const availableModels = [
     { id: 'gpt-4', name: 'GPT-4', desc: 'Powerful & Akurat' },
     { id: 'gpt-3.5-turbo', name: 'GPT-3.5 Turbo', desc: 'Cepat & Seimbang' },
@@ -69,20 +65,17 @@ const Chatbot = ({ isOpen: externalIsOpen, onClose }: ChatbotProps) => {
     { id: 'llama-3-70b', name: 'Llama 3', desc: 'Open Source' }
   ];
 
-  // Initialize Puter.js (pake NPM)
   useEffect(() => {
     const initPuter = async () => {
       try {
-        // Cek apakah puter sudah siap
-        if (puter && puter.ai) {
+        if (puter && typeof puter.ai === 'function') {
           setPuterReady(true);
           setApiStatus('ready');
-          console.log('✅ Puter.js NPM package ready');
         } else {
           throw new Error('Puter.ai not available');
         }
       } catch (error) {
-        console.error('❌ Failed to initialize Puter.js:', error);
+        console.error('Failed to initialize Puter.js:', error);
         setApiStatus('error');
         setPuterReady(false);
       }
@@ -91,7 +84,6 @@ const Chatbot = ({ isOpen: externalIsOpen, onClose }: ChatbotProps) => {
     initPuter();
   }, []);
 
-  // Sync external isOpen
   useEffect(() => {
     if (externalIsOpen !== undefined) {
       setIsOpen(externalIsOpen);
@@ -99,10 +91,23 @@ const Chatbot = ({ isOpen: externalIsOpen, onClose }: ChatbotProps) => {
   }, [externalIsOpen]);
 
   const getSystemPrompt = () => {
-  return `Kamu adalah AI assistant yang membantu pengguna dengan jawaban yang jelas, natural, dan tidak bertele-tele. Jawab langsung ke inti, tapi tetap fleksibel mengikuti konteks percakapan.`;
-};
+    return `Kamu adalah Alf AI, asisten virtual Galvin (SMKN 2 Nganjuk - PPLG).
 
-  // Initialize Speech Recognition
+INFO SINGKAT:
+- Skill: React, JS, Tailwind, Node.js dasar, Figma, Unity
+- Project: Portfolio web, game shooter, web top up, UI/UX design
+
+ATURAN WAJIB:
+1. JAWAB MAKSIMAL 2 KALIMAT SAJA
+2. LANGSUNG TO THE POINT
+3. JANGAN PAKAI BULLET POINT
+
+CONTOH:
+User: "Halo" → "Halo! Ada yang bisa dibantu?"
+User: "Skill apa?" → "React, JS, Tailwind, Node.js dasar."
+User: "Project apa?" → "Portfolio web, game shooter, web top up."`;
+  };
+
   useEffect(() => {
     if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
       const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
@@ -125,7 +130,6 @@ const Chatbot = ({ isOpen: externalIsOpen, onClose }: ChatbotProps) => {
     }
   }, []);
 
-  // Handle click outside emoji picker
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (emojiPickerRef.current && !emojiPickerRef.current.contains(event.target as Node)) {
@@ -136,7 +140,6 @@ const Chatbot = ({ isOpen: externalIsOpen, onClose }: ChatbotProps) => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Cleanup on unmount
   useEffect(() => {
     return () => {
       if (abortControllerRef.current) {
@@ -145,7 +148,6 @@ const Chatbot = ({ isOpen: externalIsOpen, onClose }: ChatbotProps) => {
     };
   }, []);
 
-  // Scroll to bottom
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
@@ -182,7 +184,6 @@ const Chatbot = ({ isOpen: externalIsOpen, onClose }: ChatbotProps) => {
     }, 3000);
   };
 
-  // Fungsi chat pake Puter.js NPM
   const chatWithPuter = async (message: string, signal?: AbortSignal): Promise<string> => {
     if (!puterReady || !puter.ai) {
       setApiStatus('error');
@@ -195,7 +196,6 @@ const Chatbot = ({ isOpen: externalIsOpen, onClose }: ChatbotProps) => {
       
       const fullPrompt = `${getSystemPrompt()}\n\nUser: ${message}\n\nAlf AI (jawab singkat maksimal 2 kalimat):`;
       
-      // Pake puter.ai.chat dari NPM package
       const response = await puter.ai.chat(fullPrompt, { 
         model: selectedModel,
         max_tokens: 150,
@@ -221,7 +221,6 @@ const Chatbot = ({ isOpen: externalIsOpen, onClose }: ChatbotProps) => {
         aiText = getMockResponse(message);
       }
       
-      // Bersihin dan potong jadi maksimal 2 kalimat
       let cleanText = aiText.replace(/\n\n/g, ' ').trim();
       const sentences = cleanText.split(/[.!?]/);
       const shortResponse = sentences.slice(0, 2).join('. ') + (sentences.length > 2 ? '.' : '');
@@ -235,13 +234,10 @@ const Chatbot = ({ isOpen: externalIsOpen, onClose }: ChatbotProps) => {
       
       console.error('Puter.ai Error:', error);
       setApiStatus('error');
-      
-      // Coba pake mock response kalo error
       return getMockResponse(message);
     }
   };
 
-  // Mock response
   const getMockResponse = (message: string) => {
     const lowerMessage = message.toLowerCase();
     
@@ -272,7 +268,6 @@ const Chatbot = ({ isOpen: externalIsOpen, onClose }: ChatbotProps) => {
     return "Bisa tanya soal skill, project, atau kontak saya.";
   };
 
-  // Send message - LANGSUNG TAMPILIN RESPONSE
   const sendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!inputMessage.trim() || isLoading) return;
@@ -501,7 +496,6 @@ const Chatbot = ({ isOpen: externalIsOpen, onClose }: ChatbotProps) => {
           }}
           exit={{ opacity: 0, scale: 0.8, y: 20 }}
         >
-          {/* Header */}
           <div className="p-3 rounded-t-xl flex justify-between items-center border-b border-gray-700/30" style={{ backgroundColor: 'rgba(17, 24, 39, 0.8)' }}>
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 rounded-full flex items-center justify-center overflow-hidden">
@@ -561,7 +555,6 @@ const Chatbot = ({ isOpen: externalIsOpen, onClose }: ChatbotProps) => {
 
           {!isMinimized && (
             <>
-              {/* Messages Container */}
               <div className="flex-1 overflow-y-auto p-3 space-y-3">
                 {!puterReady && (
                   <motion.div 
@@ -632,7 +625,6 @@ const Chatbot = ({ isOpen: externalIsOpen, onClose }: ChatbotProps) => {
                   ))}
                 </AnimatePresence>
                 
-                {/* Loading Indicator */}
                 {isLoading && (
                   <motion.div 
                     className="flex justify-start"
@@ -660,7 +652,6 @@ const Chatbot = ({ isOpen: externalIsOpen, onClose }: ChatbotProps) => {
                 <div ref={messagesEndRef} />
               </div>
 
-              {/* Input Area */}
               <div className="border-t border-gray-800/30 p-3" style={{ backgroundColor: 'rgba(17, 24, 39, 0.8)' }}>
                 {showEmojiPicker && (
                   <div ref={emojiPickerRef} className="absolute bottom-14 right-3 z-50">
