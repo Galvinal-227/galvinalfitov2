@@ -9,7 +9,6 @@ import { StateContext } from 'context/state'
 import { AnimatePresence, animate, motion, useMotionValue, useTransform } from 'framer-motion'
 import { useContext, useEffect, useRef, useState } from 'react'
 import Lottie from 'lottie-react'
-import Backsound from 'components/Backsound'
 
 const waitingToStart = 1500
 const percentCount = 100
@@ -90,7 +89,6 @@ export default function Introduction() {
   const { setState: setStateCursor } = useContext(CursorContext)
 
   const [currParagraph, setCurrParagraph] = useState(0)
-  const [showBacksound, setShowBacksound] = useState(false)
   const [showLoading, setShowLoading] = useState(true)
   const progressRef = useRef<HTMLDivElement | null>(null)
   const currentPr = useMotionValue(0)
@@ -156,25 +154,12 @@ export default function Introduction() {
           await fetchAllImages()
         }
         setShowLoading(false)
-        setShowBacksound(true)
+        // Langsung lanjut ke portfolio tanpa backsound
+        if (setState) {
+          setState((prev) => ({ ...prev, isSplashShow: false }))
+        }
       }
     })
-  }
-
-  const handleBacksoundComplete = () => {
-    setShowBacksound(false)
-    // Reset cursor ke default
-    if (setStateCursor) {
-      setStateCursor({
-        element: null,
-        key: null,
-        type: null
-      } as any)
-    }
-    // Lanjut ke portfolio
-    if (setState) {
-      setState((prev) => ({ ...prev, isSplashShow: false }))
-    }
   }
 
   useEffect(() => {
@@ -258,9 +243,6 @@ export default function Introduction() {
           ) : null}
         </div>
       )}
-
-      {/* Backsound Permission Screen */}
-      {showBacksound && <Backsound onComplete={handleBacksoundComplete} />}
     </>
   )
 }
