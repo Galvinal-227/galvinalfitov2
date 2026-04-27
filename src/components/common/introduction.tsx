@@ -73,17 +73,6 @@ const paragraph = [
   </div>
 ]
 
-const fetchAllImagesFromTxt = async () => {
-  try {
-    const fetchFile = await fetch('/all-images.txt')
-    const txt = await fetchFile.text()
-    const pathImages = txt.split('\n').filter((img) => img)
-    return pathImages
-  } catch (e: any) {
-    console.error(e?.message)
-  }
-}
-
 export default function Introduction() {
   const { setState } = useContext(StateContext)
   const { setState: setStateCursor } = useContext(CursorContext)
@@ -96,7 +85,6 @@ export default function Introduction() {
   const count = useMotionValue(0)
   const rounded = useTransform(count, (value) => Math.round(value))
 
-  // DEFINE MORTY CURSOR DI SINI (sebelum digunakan)
   const mortyCursor = {
     element: (
       <motion.img
@@ -110,17 +98,6 @@ export default function Introduction() {
     ),
     key: 'goingtobegreat',
     type: 'hover' as const
-  }
-
-  const fetchAllImages = async () => {
-    const images = (await fetchAllImagesFromTxt())?.map((img) => {
-      const pathimg = '/assets/' + img
-      return fetch(pathimg)
-    })
-
-    await Promise.all(images || []).then(() => {
-      console.log('success get images')
-    })
   }
 
   const startPercentAnimate = () => {
@@ -149,12 +126,8 @@ export default function Introduction() {
           setCurrParagraph(round)
         }
       },
-      async onComplete() {
-        if (import.meta.env.PROD) {
-          await fetchAllImages()
-        }
+      onComplete() {
         setShowLoading(false)
-        // Langsung lanjut ke portfolio tanpa backsound
         if (setState) {
           setState((prev) => ({ ...prev, isSplashShow: false }))
         }
@@ -163,11 +136,6 @@ export default function Introduction() {
   }
 
   useEffect(() => {
-    if (import.meta.env.PROD) {
-      fetchAllImages()
-    }
-
-    // Set cursor awal
     if (setStateCursor) {
       setStateCursor({
         element: mortyCursor.element,
@@ -187,7 +155,6 @@ export default function Introduction() {
     return () => {
       percentAnimate?.stop()
       titleTextAnimate?.stop()
-      // Cleanup cursor
       if (setStateCursor) {
         setStateCursor({
           element: null,
@@ -200,7 +167,6 @@ export default function Introduction() {
 
   return (
     <>
-      {/* Loading Screen */}
       {showLoading && (
         <div className="fixed left-0 top-0 z-[9999999] flex h-screen w-full flex-col items-center justify-center bg-white">
           <div className="absolute left-0 top-0 h-[3px] w-[0%] bg-primary" ref={progressRef} />
