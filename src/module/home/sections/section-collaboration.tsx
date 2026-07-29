@@ -50,8 +50,8 @@ const CollaborationSection: React.FC = () => {
   ];
 
   const stats = [
-    { value: '10K+', label: 'Students', icon: <MdOutlineSchool className="text-white/40" /> },
-    { value: '50+', label: 'Resources', icon: <MdOutlineLightbulb className="text-white/40" /> },
+    { value: '3+', label: 'Students', icon: <MdOutlineSchool className="text-white/40" /> },
+    { value: '100+', label: 'Resources', icon: <MdOutlineLightbulb className="text-white/40" /> },
     { value: '4.9', label: 'Rating', icon: <FaStar className="text-white/40" /> }
   ];
 
