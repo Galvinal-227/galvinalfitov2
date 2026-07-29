@@ -6,7 +6,6 @@ import {
   FaStar, 
   FaArrowRight,
   FaExternalLinkAlt,
-  FaGithub,
   FaCode,
   FaGlobe
 } from 'react-icons/fa';
@@ -39,9 +38,8 @@ interface Student {
 
 const CollaborationSection: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
-  const [scrollProgress, setScrollProgress] = useState(0);
-  const iframeRef = useRef<HTMLIFrameElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  // Removed: iframeRef, scrollProgress, and scroll-related states
 
   const techStack: TechStackItem[] = [
     { name: 'React', icon: <SiReact className="text-white/60" /> },
@@ -82,37 +80,7 @@ const CollaborationSection: React.FC = () => {
     return () => clearTimeout(timer);
   }, []);
 
-  // Simulasi scroll di dalam iframe
-  useEffect(() => {
-    if (!isLoading) {
-      const interval = setInterval(() => {
-        setScrollProgress((prev) => {
-          const newProgress = prev + 0.5;
-          if (newProgress >= 100) {
-            clearInterval(interval);
-            return 100;
-          }
-          return newProgress;
-        });
-      }, 100);
-
-      return () => clearInterval(interval);
-    }
-  }, [isLoading]);
-
-  // Update iframe scroll position
-  useEffect(() => {
-    if (iframeRef.current && iframeRef.current.contentWindow) {
-      const scrollHeight = containerRef.current?.scrollHeight || 0;
-      const targetScroll = (scrollProgress / 100) * scrollHeight;
-      
-      // Simulasi scroll dengan animasi smooth
-      iframeRef.current.contentWindow.scrollTo({
-        top: targetScroll,
-        behavior: 'smooth'
-      });
-    }
-  }, [scrollProgress]);
+  // Removed: scroll simulation useEffect hooks that were causing the error
 
   return (
     <section className="relative py-[120px] px-10 flex items-center bg-[#0a0a0a] text-white font-sans overflow-hidden md:py-[60px] md:px-5">
@@ -159,24 +127,17 @@ const CollaborationSection: React.FC = () => {
               </div>
             )}
 
-            {/* Scroll Progress Indicator */}
-            {!isLoading && (
-              <div className="absolute top-4 right-4 z-20 bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/10">
-                <span className="text-xs text-white/40">
-                  Scroll {Math.round(scrollProgress)}%
-                </span>
-              </div>
-            )}
+            {/* Removed: Scroll Progress Indicator - was causing the error */}
 
             <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a]/80 via-transparent to-transparent z-10" />
             
             <iframe 
-              ref={iframeRef}
               src="https://learnbygwd.vercel.app"
               title="Learn By GWD"
               className="w-full h-full border-none relative z-0"
               loading="lazy"
-              sandbox="allow-scripts allow-same-origin"
+              sandbox="allow-scripts allow-same-origin allow-modals"
+              allow="accelerometer; camera; encrypted-media; geolocation; gyroscope; hid; microphone; midi; payment; usb"
             />
 
             {/* Live Indicator */}
