@@ -1,5 +1,5 @@
 // module/home/sections/section-collaboration.tsx
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   FaRocket, 
   FaUsers, 
@@ -32,7 +32,17 @@ interface TechStackItem {
   icon: React.ReactNode;
 }
 
+interface Student {
+  initial: string;
+  color: string;
+}
+
 const CollaborationSection: React.FC = () => {
+  const [isLoading, setIsLoading] = useState(true);
+  const [scrollProgress, setScrollProgress] = useState(0);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+
   const techStack: TechStackItem[] = [
     { name: 'React', icon: <SiReact className="text-white/60" /> },
     { name: 'Tailwind', icon: <SiTailwindcss className="text-white/60" /> },
@@ -47,12 +57,62 @@ const CollaborationSection: React.FC = () => {
     { value: '4.9', label: 'Rating', icon: <FaStar className="text-white/40" /> }
   ];
 
-  const avatars = [
-    { letter: 'A', color: 'from-white/20 to-white/5' },
-    { letter: 'B', color: 'from-white/20 to-white/5' },
-    { letter: 'C', color: 'from-white/20 to-white/5' },
-    { letter: 'D', color: 'from-white/20 to-white/5' }
+  // Data murid (inisial saja)
+  const students: Student[] = [
+    { 
+      initial: 'AS', // Ali Satria
+      color: 'from-blue-400/30 to-blue-600/10'
+    },
+    { 
+      initial: 'DN', // Dhani
+      color: 'from-purple-400/30 to-purple-600/10'
+    },
+    { 
+      initial: 'SR', // Siti Rahma
+      color: 'from-pink-400/30 to-pink-600/10'
+    }
   ];
+
+  // Simulasi loading 10 detik
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 10000);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Simulasi scroll di dalam iframe
+  useEffect(() => {
+    if (!isLoading) {
+      const interval = setInterval(() => {
+        setScrollProgress((prev) => {
+          const newProgress = prev + 0.5;
+          if (newProgress >= 100) {
+            clearInterval(interval);
+            return 100;
+          }
+          return newProgress;
+        });
+      }, 100);
+
+      return () => clearInterval(interval);
+    }
+  }, [isLoading]);
+
+  // Update iframe scroll position
+  useEffect(() => {
+    if (iframeRef.current && iframeRef.current.contentWindow) {
+      const scrollHeight = containerRef.current?.scrollHeight || 0;
+      const targetScroll = (scrollProgress / 100) * scrollHeight;
+      
+      // Simulasi scroll dengan animasi smooth
+      iframeRef.current.contentWindow.scrollTo({
+        top: targetScroll,
+        behavior: 'smooth'
+      });
+    }
+  }, [scrollProgress]);
 
   return (
     <section className="relative py-[120px] px-10 flex items-center bg-[#0a0a0a] text-white font-sans overflow-hidden md:py-[60px] md:px-5">
@@ -74,20 +134,57 @@ const CollaborationSection: React.FC = () => {
             <span className="text-white/80">Official Collaboration</span>
           </div>
 
-          <div className="w-full h-[750px] rounded-[30px] overflow-hidden bg-[#111] border border-white/10 shadow-[0_40px_100px_rgba(0,0,0,0.5)] relative group md:h-[550px]">
+          <div 
+            ref={containerRef}
+            className="w-full h-[750px] rounded-[30px] overflow-hidden bg-[#111] border border-white/10 shadow-[0_40px_100px_rgba(0,0,0,0.5)] relative group md:h-[550px]"
+          >
+            {/* Loading Overlay */}
+            {isLoading && (
+              <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-[#111]">
+                <div className="relative">
+                  <div className="w-16 h-16 border-4 border-white/10 border-t-white rounded-full animate-spin"></div>
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <span className="text-xs text-white/40">Loading</span>
+                  </div>
+                </div>
+                <p className="mt-4 text-sm text-white/30 animate-pulse">
+                  Preparing learning platform...
+                </p>
+                <div className="mt-2 w-48 h-1 bg-white/5 rounded-full overflow-hidden">
+                  <div 
+                    className="h-full bg-white/20 rounded-full transition-all duration-300"
+                    style={{ width: `${(Date.now() % 10000) / 100}%` }}
+                  ></div>
+                </div>
+              </div>
+            )}
+
+            {/* Scroll Progress Indicator */}
+            {!isLoading && (
+              <div className="absolute top-4 right-4 z-20 bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/10">
+                <span className="text-xs text-white/40">
+                  Scroll {Math.round(scrollProgress)}%
+                </span>
+              </div>
+            )}
+
             <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a]/80 via-transparent to-transparent z-10" />
             
             <iframe 
+              ref={iframeRef}
               src="https://learnbygwd.vercel.app"
               title="Learn By GWD"
               className="w-full h-full border-none relative z-0"
               loading="lazy"
+              sandbox="allow-scripts allow-same-origin"
             />
 
             {/* Live Indicator */}
             <div className="absolute bottom-6 left-6 z-20 flex items-center gap-3 bg-black/60 backdrop-blur-md px-4 py-2 rounded-full border border-white/10">
               <IoPlayCircleOutline className="w-5 h-5 text-white/60 animate-pulse" />
-              <span className="text-sm text-white/60">Live Demo</span>
+              <span className="text-sm text-white/60">
+                {isLoading ? 'Loading...' : 'Live Demo'}
+              </span>
             </div>
           </div>
 
@@ -200,21 +297,22 @@ const CollaborationSection: React.FC = () => {
             </a>
           </div>
 
-          {/* Social Proof */}
+          {/* Social Proof - Student Avatars */}
           <div className="flex items-center gap-4 pt-4">
             <div className="flex -space-x-2">
-              {avatars.map((avatar, index) => (
+              {students.map((student, index) => (
                 <div 
                   key={index} 
-                  className={`w-10 h-10 rounded-full bg-gradient-to-br ${avatar.color} border-2 border-[#0a0a0a] flex items-center justify-center text-xs font-bold text-white/60`}
+                  className={`w-10 h-10 rounded-full bg-gradient-to-br ${student.color} border-2 border-[#0a0a0a] flex items-center justify-center text-xs font-bold text-white/70`}
+                  title={student.initial}
                 >
-                  {avatar.letter}
+                  {student.initial}
                 </div>
               ))}
             </div>
             <div className="text-sm text-white/30 flex items-center gap-2">
               <FaUsers className="w-4 h-4 text-white/40" />
-              <span className="text-white/60 font-semibold">200+</span> developers joined
+              <span className="text-white/60 font-semibold">3</span> active students
             </div>
           </div>
         </div>
