@@ -132,7 +132,7 @@ const CollaborationSection: React.FC = () => {
             <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a]/80 via-transparent to-transparent z-10" />
             
             <iframe 
-              src="https://learnbygwd.vercel.app"
+              src="https://learncoding-one.vercel.app"
               title="Learn By GWD"
               className="w-full h-full border-none relative z-0"
               loading="lazy"
@@ -240,7 +240,7 @@ const CollaborationSection: React.FC = () => {
           {/* CTA Buttons */}
           <div className="flex flex-wrap gap-4 pt-4">
             <a 
-              href="https://learnbygwd.vercel.app"
+              href="https://learncoding-one.vercel.app"
               target="_blank"
               rel="noopener noreferrer"
               className="group inline-flex items-center gap-3 px-8 py-4 rounded-full bg-white text-[#0a0a0a] font-semibold transition-all duration-300 hover:shadow-[0_0_30px_rgba(255,255,255,0.1)] hover:-translate-y-1"
