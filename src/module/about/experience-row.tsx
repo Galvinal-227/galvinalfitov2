@@ -7,23 +7,6 @@ import { easeDefault } from 'lib/utils'
 import StaggerElementFooter from 'module/footer/stagger-element'
 import React from 'react'
 
-const viewClickCursor = {
-  element: (
-    <motion.div
-      onClick={() => console.log('wkwkwk')}
-      initial={{ scale: 0 }}
-      animate={{ scale: 1 }}
-      exit={{ scale: 0 }}
-      transition={{ duration: 0.5, ease: easeDefault }}
-      className=" z-[99] flex h-[100px] w-[100px] items-center justify-center rounded-full bg-primary"
-    >
-      <p className="m-0 font-pixel font-medium text-white">View</p>
-    </motion.div>
-  ),
-  key: 'viewClick',
-  type: 'hover'
-}
-
 export type ExperienceRowProps = {
   text1?: string | React.ReactElement
   text2?: string | React.ReactElement
@@ -31,9 +14,16 @@ export type ExperienceRowProps = {
   color?: string
   image?: any
   link?: any
+  liveUrl?: string
 }
 
-const HoverEffect = ({ children, color, image, text1 }: { children: any } & ExperienceRowProps) => {
+const HoverEffect = ({ children, link }: { children: any } & ExperienceRowProps) => {
+  const openLink = () => {
+    if (link) {
+      window.open(link, '_blank')
+    }
+  }
+
   return (
     <CursorProvider>
       <Cursor />
@@ -42,18 +32,14 @@ const HoverEffect = ({ children, color, image, text1 }: { children: any } & Expe
           element: {
             element: (
               <motion.div
-                initial={{ height: '0px' }}
-                animate={{ height: '400px' }}
-                exit={{ scale: 1.1, opacity: 0, transition: { duration: 0.5 } }}
-                transition={{ duration: 0.7, ease: easeDefault }}
-                className="flex w-[400px] items-center justify-center overflow-hidden bg-secondary"
-                style={{ backgroundColor: color }}
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                exit={{ scale: 0 }}
+                transition={{ duration: 0.3, ease: easeDefault }}
+                className="flex h-[100px] w-[100px] items-center justify-center rounded-full bg-primary cursor-pointer"
+                onClick={openLink}
               >
-                <motion.img
-                  src={image}
-                  alt={typeof text1 === 'string' ? text1 : 'image'}
-                  className="h-[80%] w-[80%] origin-top object-cover shadow-2xl"
-                />
+                <p className="m-0 font-pixel font-medium text-white text-sm">View</p>
               </motion.div>
             ),
             key: 'previewExperience',
@@ -62,21 +48,13 @@ const HoverEffect = ({ children, color, image, text1 }: { children: any } & Expe
         }}
         fallbackState={{ element: { element: null, type: 'hover', key: new Date().getTime() } }}
       >
-        <CursorProvider>
-          <Cursor />
-          <WithCursorElement
-            state={{ element: viewClickCursor as any, speedCursor: 0.2 }}
-            fallbackState={{ element: { element: null, type: 'hover', key: new Date().getTime() } }}
-          >
-            {children}
-          </WithCursorElement>
-        </CursorProvider>
+        {children}
       </WithCursorElement>
     </CursorProvider>
   )
 }
 
-const ExperienceRow = ({ text1, text2, text3, color, image, link }: ExperienceRowProps) => {
+const ExperienceRow = ({ text1, text2, text3, color, image, link, liveUrl }: ExperienceRowProps) => {
   const { state } = React.useContext(StateContext)
   const [hover, setHover] = React.useState(false)
 
@@ -115,7 +93,7 @@ const ExperienceRow = ({ text1, text2, text3, color, image, link }: ExperienceRo
           >
             {text1}
           </h2>
-          {!state?.isSmallDevice && (
+          {!state?.isSmallDevice && text1 && typeof text1 === 'string' && (
             <>
               <StaggerElementFooter
                 aria-hidden
@@ -150,13 +128,13 @@ const ExperienceRow = ({ text1, text2, text3, color, image, link }: ExperienceRo
         </div>
       </motion.button>
     ),
-    [hover, state?.isSmallDevice]
+    [hover, state?.isSmallDevice, text1, text2, text3, link]
   )
 
   if (state?.isSmallDevice) return content
 
   return (
-    <HoverEffect color={color} image={image}>
+    <HoverEffect link={link || liveUrl}>
       {content}
     </HoverEffect>
   )
