@@ -52,9 +52,9 @@ const translations = {
   home_contact_say_hi: { en: 'Say Hi', id: 'Sapa Saya' },
   home_contact_lets_talk: { en: "Let's Talk", id: 'Ayo Bicara' },
 
-  home_waste_your_time: { en: 'Waste Your Time', id: 'Buang Waktumu' },
-  home_and_the_world: { en: 'And The World', id: 'Dan Dunia' },
-  home_will_waste_you: { en: 'Will Waste You', id: 'Akan Membuangmu' },
+  home_waste_your_time: { en: 'We Walk the Talk', id: 'kita melakukan apa yang kita bicarakan' },
+  home_and_the_world: { en: 'Not Only', id: 'Bukan Hanya' },
+  home_will_waste_you: { en: 'Talk The Talk', id: 'Bicara Saja' },
 
   about_me_marquee: { en: 'ABOUT ME - ', id: 'TENTANG SAYA - ' },
   about_dont_be_shy: { en: 'Dont Be Shy,', id: 'Jangan Malu-Malu,' },
