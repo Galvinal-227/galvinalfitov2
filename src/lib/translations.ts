@@ -25,7 +25,7 @@ const translations = {
   home_as_developer: { en: 'As Developer.', id: 'Sebagai Developer.' },
   home_specializing_lead: { en: 'Specializing In Web ', id: 'Spesialisasi Dalam Pengembangan Web ' },
   home_specializing_trail: { en: 'Development', id: 'Development' },
-  home_mobile_intro_1: { en: 'Build More Talk Less', id: 'Berkarya Lebih Sedikit Berbicara' },
+  home_mobile_intro_1: { en: 'The Work Speaks For Itself', id: 'Karya Berbicara Dengan Sendirinya' },
   home_mobile_intro_2: { en: 'Creative Developer Based In Indonesia', id: 'Pengembang Kreatif Berbasis Di Indonesia' },
   home_mobile_intro_3: { en: 'Specializing In Web Fullstack Development', id: 'Spesialisasi Dalam Pengembangan Web Fullstack' },
   home_welcome_interactive: { en: 'Welcome To My Interactive Portfolio', id: 'Selamat Datang Di Portofolio Interaktif Saya' },
@@ -52,9 +52,9 @@ const translations = {
   home_contact_say_hi: { en: 'Say Hi', id: 'Sapa Saya' },
   home_contact_lets_talk: { en: "Let's Talk", id: 'Ayo Bicara' },
 
-  home_waste_your_time: { en: 'Build', id: 'Berkarya' },
-home_and_the_world: { en: 'More.', id: 'Lebih.' },
-home_will_waste_you: { en: 'Talk Less.', id: 'Sedikit Bicara.' },
+  home_waste_your_time: { en: 'The Work', id: 'Karya' },
+home_and_the_world: { en: 'Speaaks', id: 'Berbicara' },
+home_will_waste_you: { en: 'For Itself', id: 'Dengan Sendirinya' },
 
   about_me_marquee: { en: 'ABOUT ME - ', id: 'TENTANG SAYA - ' },
   about_dont_be_shy: { en: 'Dont Be Shy,', id: 'Jangan Malu-Malu,' },
