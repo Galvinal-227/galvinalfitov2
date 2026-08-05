@@ -1,6 +1,6 @@
-import AestetikImg from 'assets/images/calmness.gif'
-import SatisfiedImg from 'assets/images/victory.gif'
-import FunctionalImg from 'assets/images/iq.gif'
+import CalmnessGif from '/src/assets/images/calmness.gif'
+import VictoryGif from '/src/assets/images/victory.gif'
+import IqGif from '/src/assets/images/iq.gif'
 import WithCursorElement from 'components/common/with-cursor-element'
 import { motion } from 'framer-motion'
 import { useTranslation } from 'lib/translations'
@@ -11,7 +11,7 @@ const functionalityCursor = {
       animate={{ opacity: 0.7, scale: 1 }}
       initial={{ opacity: 0, scale: 0.2 }}
       exit={{ opacity: 0, scale: 0.2 }}
-      src={FunctionalImg}
+      src={IqGif}
       className="w-[200px] object-cover"
     />
   ),
@@ -24,7 +24,7 @@ const aetheticsCursor = {
       animate={{ opacity: 1, scale: 1 }}
       initial={{ opacity: 0, scale: 0.2 }}
       exit={{ opacity: 0, scale: 0.2 }}
-      src={AestetikImg}
+      src={CalmnessGif}
       className="w-[200px] object-cover"
     />
   ),
@@ -37,7 +37,7 @@ const satisfiedCursor = {
       animate={{ opacity: 0.7, scale: 1 }}
       initial={{ opacity: 0, scale: 0.2 }}
       exit={{ opacity: 0, scale: 0.2 }}
-      src={SatisfiedImg}
+      src={VictoryGif}
       className="w-[200px] object-cover"
     />
   ),
