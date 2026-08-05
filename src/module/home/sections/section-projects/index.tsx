@@ -32,18 +32,18 @@ export default function SectionProjects() {
     {
       text1: 'Old Portfolio Website',
       text2: '2025',
-      text3: 'Fullstack - React, Tailwind, MongoDB',
+      text3: 'Frontend - React, Tailwind',
       color: '#2E9E6C',
       link: 'https://github.com/galvinal-227',
       liveUrl: 'https://galvin-portfolio.vercel.app'
     },
     {
-      text1: 'Task Management App',
+      text1: 'Library Css Gradient',
       text2: '2025',
-      text3: 'Desktop App - Python, Tkinter',
+      text3: 'Frontend - React, tailwind',
       color: '#A3195B',
       link: 'https://github.com/galvinal-227',
-      liveUrl: 'https://your-task-app.com'
+      liveUrl: 'https://gcssgradient.vercel.app'
     }
   ]
 
