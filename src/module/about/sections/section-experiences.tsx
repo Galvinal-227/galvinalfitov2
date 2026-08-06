@@ -43,6 +43,14 @@ export default function SectionProjects() {
       color: '#A3195B',
       link: 'https://github.com/galvinal-227',
       liveUrl: 'https://gcssgradient.vercel.app'
+    },
+    {
+      text1: 'Library Nova UI',
+      text2: '2026',
+      text3: 'Frontend - React, tailwind',
+      color: '#A3195B',
+      link: 'https://github.com/galvinal-227',
+      liveUrl: 'https://novaui-six.vercel.app'
     }
   ]
 
