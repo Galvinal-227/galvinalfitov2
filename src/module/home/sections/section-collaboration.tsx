@@ -172,7 +172,7 @@ const CollaborationSection: React.FC = () => {
               <span className="whitespace-nowrap">Collaboration Project</span>
             </span>
             <span className="text-sm text-white/20">|</span>
-            <span className="text-xs md:text-sm text-white/30">2024</span>
+            <span className="text-xs md:text-sm text-white/30">2026</span>
           </div>
 
           {/* Title */}
