@@ -1,23 +1,10 @@
 /* eslint-disable react/no-unescaped-entities */
-import React, { useMemo, useCallback } from 'react'
+import React from 'react'
 import TitleSummaries from '../title-summaries'
 import PattrickImg from 'assets/images/pattrick.gif'
 import { motion } from 'framer-motion'
 import Experience from '../experience'
 import WithCursorElement from 'components/common/with-cursor-element'
-import ReactIcon from 'assets/icons/React.png'
-import NextJSIcon from 'assets/icons/Next.js.png'
-import TailwindIcon from 'assets/icons/Tailwindcss6.png'
-import HtmlIcon from 'assets/icons/HTML.png'
-import ViteIcon from 'assets/icons/Vite.png'
-import NodeJSIcon from 'assets/icons/Node.js.png'
-import PythonIcon from 'assets/icons/Python.png'
-import DockerIcon from 'assets/icons/DockerLogo.png'
-import TypescriptIcon from 'assets/icons/TypeScript.png'
-import VscIcon from 'assets/icons/VisualStudioLogoShadow.png'
-import FigmaIcon from 'assets/icons/Figma.png'
-import GithubIcon from 'assets/icons/Github.png'
-import { link } from 'fs'
 
 const TechStack = () => {
   const techCategories = [
@@ -69,107 +56,184 @@ const TechStack = () => {
 }
 
 const Experiences = () => {
+  const projects = [
+    {
+      text1: 'Learn Coding',
+      text2: '2026',
+      text3: 'Frontend - React, Tailwind, Vite, locomotive-scroll, framer-motion',
+      color: '#0091F8',
+      link: 'https://github.com/galvinal-227',
+      liveUrl: 'https://learncoding-one.vercel.app'
+    },
+    {
+      text1: 'Gallery With You',
+      text2: '2026',  
+      text3: 'Frontend - React, Tailwind, Vite, framer-motion',
+      color: '#F1592A',
+      link: 'https://github.com/galvinal-227',
+      liveUrl: 'https://youandme-six.vercel.app'
+    },
+    {
+      text1: 'Portfolio Website',
+      text2: '2025',
+      text3: 'Fullstack - React, Tailwind, MongoDB',
+      color: '#2E9E6C',
+      link: 'https://github.com/galvinal-227',
+      liveUrl: 'https://galvin-portfolio.vercel.app'
+    },
+    {
+      text1: 'Library Css Gradient',
+      text2: '2026',
+      text3: 'Frontend - React, Tailwind',
+      color: '#A3195B',
+      link: 'https://github.com/galvinal-227',
+      liveUrl: 'https://gcssgradient.vercel.app'
+    },
+    {
+      text1: 'Library Nova UI',
+      text2: '2026',
+      text3: 'Frontend - React, tailwind',
+      color: '#A3195B',
+      link: 'https://github.com/galvinal-227',
+      liveUrl: 'https://novaui-six.vercel.app'
+    },
+    {
+      text1: 'GWD Studio',
+      text2: '2026',
+      text3: 'Frontend - React, tailwind',
+      color: '#A3195B',
+      link: 'https://github.com/galvinal-227',
+      liveUrl: 'https://gwd-studio.vercel.app'
+    },
+    {
+      text1: 'Old Portfolio',
+      text2: '2025',
+      text3: 'Frontend - React, tailwind',
+      color: '#A3195B',
+      link: 'https://github.com/galvinal-227',
+      liveUrl: 'https://galvin-portfolio.vercel.app'
+    },
+    {
+      text1: 'Al Quran Digital',
+      text2: '2025',
+      text3: 'Frontend - React, tailwind',
+      color: '#A3195B',
+      link: 'https://github.com/galvinal-227',
+      liveUrl: 'https://al-q-app.vercel.app'
+    },
+    {
+      text1: 'GWD Code Editor',
+      text2: '2026',
+      text3: 'Frontend - React, tailwind',
+      color: '#A3195B',
+      link: 'https://github.com/galvinal-227',
+      liveUrl: 'https://gcodeeditor.vercel.app'
+    },
+    {
+      text1: 'GWD Color Generator',
+      text2: '2026',
+      text3: 'Frontend - React, tailwind',
+      color: '#A3195B',
+      link: 'https://github.com/galvinal-227',
+      liveUrl: 'https://gwd-code-generator.vercel.app'
+    },
+    {
+      text1: 'Velora Shop',
+      text2: '2026',
+      text3: 'Frontend - React, tailwind',
+      color: '#A3195B',
+      link: 'https://github.com/galvinal-227',
+      liveUrl: 'https://veloraid-pi.vercel.app/'
+    }
+  ]
+
   return (
     <div className="relative mt-[10vh] grid grid-cols-1 gap-16 lg:grid-cols-2">
       <div id="education">
-  <TitleSummaries text="Education" observeId="education" />
-  <ul className="list-disc marker:text-white">
-    <Experience
-      notAllowed
-      title="SMKN 2 Nganjuk - PPLG (Pengembangan Perangkat Lunak dan Gim)"
-      sentences={['Nganjuk', `2023 - ${new Date().getFullYear()}`]}
-      link="/"
-    />
-  </ul>
-</div>
+        <TitleSummaries text="Education" observeId="education" />
+        <ul className="list-disc marker:text-white">
+          <Experience
+            notAllowed
+            title="SMKN 2 Nganjuk - PPLG (Pengembangan Perangkat Lunak dan Gim)"
+            sentences={['Nganjuk', `2023 - ${new Date().getFullYear()}`]}
+            link="/"
+          />
+        </ul>
+      </div>
 
-<div id="experiences">
-  <TitleSummaries text="Experiences" observeId="experiences" />
-  <ul className="list-disc marker:text-white">
-    <Experience 
-      title="Freelance / Personal Project" 
-      sentences={['Frontend & Backend', '2025 - Sekarang']} 
-      link="/" 
-    />
-  </ul>
-</div>
+      <div id="experiences">
+        <TitleSummaries text="Experiences" observeId="experiences" />
+        <ul className="list-disc marker:text-white">
+          <Experience 
+            title="Freelance / Personal Project" 
+            sentences={['Frontend & Backend', '2025 - Sekarang']} 
+            link="/" 
+          />
+        </ul>
+      </div>
 
-<div id="selected-project">
-  <TitleSummaries text="Selected Projects" observeId="selected-project" />
-  <ul className="list-disc marker:text-white">
-    <Experience 
-      notAllowed 
-      title="Website Portfolio" 
-      sentences={['Frontend Developer', 'React + Tailwind', '2026']} 
-      link="/" 
-    />
-    <Experience
-      notAllowed
-      title="School Website"
-      sentences={['Fullstack Developer', 'Website Pendidikan + Chatbot AI', '2026']}
-      link="/"
-      className="mt-5"
-    />
-    <Experience
-      notAllowed
-      title="Al Quran Digital"
-      sentences={['Frontend Developer', 'React + TypeScript ', '2026']}
-      link="/"
-      className="mt-5"
-    />
-  </ul>
-</div>  
+      <div id="selected-project">
+        <TitleSummaries text="Selected Projects" observeId="selected-project" />
+        <ul className="list-disc marker:text-white">
+          {projects.slice(0, 3).map((project, index) => (
+            <Experience 
+              key={index}
+              notAllowed 
+              title={project.text1}
+              sentences={[project.text3, project.text2]}
+              link={project.link}
+              className={index > 0 ? "mt-5" : ""}
+            />
+          ))}
+        </ul>
+      </div>  
 
-<div id="selected-activities">
-  <TitleSummaries text="Selected Activities" observeId="selected-activities" />
-  <ul className="list-disc marker:text-white">
-    
-    <Experience 
-      notAllowed 
-      title="Self Learning Programming" 
-      sentences={['Belajar React, TypeScript, dan JavaScript secara mandiri', '2024 - Sekarang']} 
-      link="/"
-    />
+      <div id="selected-activities">
+        <TitleSummaries text="Selected Activities" observeId="selected-activities" />
+        <ul className="list-disc marker:text-white">
+          <Experience 
+            notAllowed 
+            title="Self Learning Programming" 
+            sentences={['Belajar React, TypeScript, dan JavaScript secara mandiri', '2024 - Sekarang']} 
+            link="/"
+          />
 
-    <Experience 
-      notAllowed 
-      title="Game Development Practice" 
-      sentences={['Membuat game menggunakan Construct 3', 'Project: Cowboy Shooter']} 
-      className="mt-5" 
-      link="/"
-    />
+          <Experience 
+            notAllowed 
+            title="Game Development Practice" 
+            sentences={['Membuat game menggunakan Construct 3', 'Project: Cowboy Shooter']} 
+            className="mt-5" 
+            link="/"
+          />
 
-    <Experience 
-      notAllowed 
-      title="Web Development Exploration" 
-      sentences={['Membangun website dengan React + Tailwind', 'Membuat UI modern & responsive']} 
-      className="mt-5" 
-      link="/"
+          <Experience 
+            notAllowed 
+            title="Web Development Exploration" 
+            sentences={['Membangun website dengan React + Tailwind', 'Membuat UI modern & responsive']} 
+            className="mt-5" 
+            link="/"
+          />
 
-    />
+          <Experience 
+            notAllowed 
+            title="Version Control Learning" 
+            sentences={['Menggunakan Git & GitHub untuk manage project', 'Collaborative workflow']} 
+            className="mt-5" 
+            link="/"
+          />
+        </ul>
+      </div>
 
-    <Experience 
-      notAllowed 
-      title="Version Control Learning" 
-      sentences={['Menggunakan Git & GitHub untuk manage project', 'Collaborative workflow']} 
-      className="mt-5" 
-      link="/"
-    />
-
-  </ul>
-</div>
-
-<div id="selected-certificate">
-  <TitleSummaries text="Selected Certificate" observeId="selected-certificate" />
-
-  <div className="flex flex-wrap gap-6">
-      <img
-        src="/Latika-1.png"
-        alt="Certificate React"
-        className="w-[300px] rounded-lg shadow-lg hover:scale-105 transition"
-      />
-  </div>
-</div>
+      <div id="selected-certificate">
+        <TitleSummaries text="Selected Certificate" observeId="selected-certificate" />
+        <div className="flex flex-wrap gap-6">
+          <img
+            src="/Latika-1.png"
+            alt="Certificate React"
+            className="w-[300px] rounded-lg shadow-lg hover:scale-105 transition"
+          />
+        </div>
+      </div>
       
       <div className="lg:col-span-2" id="tech">
         <TitleSummaries text="Tech Stack" observeId="tech" />
