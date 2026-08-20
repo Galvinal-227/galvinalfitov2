@@ -52,6 +52,54 @@ export default function SectionProjects() {
       color: '#A3195B',
       link: 'https://github.com/galvinal-227',
       liveUrl: 'https://novaui-six.vercel.app'
+    },
+    {
+      text1: 'GWD Studio',
+      text2: '2026',
+      text3: 'Frontend - React, tailwind',
+      color: '#A3195B',
+      link: 'https://github.com/galvinal-227',
+      liveUrl: 'https://gwd-studio.vercel.app'
+    },
+    {
+      text1: 'Old Portfolio',
+      text2: '2025',
+      text3: 'Frontend - React, tailwind',
+      color: '#A3195B',
+      link: 'https://github.com/galvinal-227',
+      liveUrl: 'https://galvin-portfolio.vercel.app'
+    },
+    {
+      text1: 'Al Quran Digital',
+      text2: '2025',
+      text3: 'Frontend - React, tailwind',
+      color: '#A3195B',
+      link: 'https://github.com/galvinal-227',
+      liveUrl: 'https://al-q-app.vercel.app'
+    },
+    {
+      text1: 'GWD Code Editor',
+      text2: '2026',
+      text3: 'Frontend - React, tailwind',
+      color: '#A3195B',
+      link: 'https://github.com/galvinal-227',
+      liveUrl: 'https://gcodeeditor.vercel.app'
+    },
+    {
+      text1: 'GWD Color Generator',
+      text2: '2026',
+      text3: 'Frontend - React, tailwind',
+      color: '#A3195B',
+      link: 'https://github.com/galvinal-227',
+      liveUrl: 'https://gwd-code-generator.vercel.app'
+    },
+    {
+      text1: 'Velora Shop',
+      text2: '2026',
+      text3: 'Frontend - React, tailwind',
+      color: '#A3195B',
+      link: 'https://github.com/galvinal-227',
+      liveUrl: 'https://veloraid-pi.vercel.app/'
     }
   ]
 
