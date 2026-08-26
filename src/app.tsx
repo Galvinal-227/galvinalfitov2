@@ -1,67 +1,89 @@
-// App.tsx
 import Cursor from 'components/common/cursor'
 import Introduction from 'components/common/introduction'
 import Menu from 'components/navigation/menu'
 import TopNav from 'components/navigation/top-nav'
 import CursorProvider from 'context/cursor'
+import LanguageProvider from 'context/language'
 import StateProvider, { StateContext } from 'context/state'
 import { AnimatePresence, motion } from 'framer-motion'
 import { easeDefault, routes } from 'lib/utils'
 import { AboutTransition } from 'pages/about'
 import { HomeTransition } from 'pages/home'
 import { SummaryTransition } from 'pages/summary'
-import React, { useContext, useEffect, useRef, useState } from 'react'
+import React, { useContext, useEffect, useRef } from 'react'
 import { Route, Routes, useLocation } from 'react-router-dom'
-import Chatbot from 'components/chatbot/Chatbot'
-import AlfLogo from 'components/chatbot/AlfLogo' // ✅ import baru
 
-const Page: React.FC = () => {
-  // ... sama seperti sebelumnya
-}
-
-const ChatbotLauncher: React.FC = () => {
+const Page = () => {
+  const location = useLocation()
   const { state } = useContext(StateContext)
-  const [isChatbotOpen, setIsChatbotOpen] = useState<boolean>(false)
+  const containerPageRef = useRef<any>()
 
-  if (!state || state.isSplashShow || state.menuShow || state.isSmallDevice === undefined) {
-    return null
+  const removeStyleContainer = () => {
+    setTimeout(() => {
+      if (containerPageRef.current) {
+        containerPageRef.current.style.transform = 'inherit'
+      }
+    }, 500)
+  }
+
+  useEffect(() => {
+    setTimeout(() => {
+      window.scrollTo(0, 0)
+    }, 1000)
+  }, [location.pathname])
+
+  useEffect(() => {
+    removeStyleContainer()
+  }, [state?.isSplashShow, state?.menuShow, location.pathname])
+
+  if (state?.isSmallDevice === undefined) {
+    return <div className="h-screen w-screen bg-primary"></div>
   }
 
   return (
     <>
-      {!isChatbotOpen && (
-        <motion.button
-          onClick={() => setIsChatbotOpen(true)}
-          className="fixed bottom-6 right-6 z-[99998]"
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.95 }}
-          initial={{ scale: 0 }}
-          animate={{ scale: 1 }}
-          transition={{ type: "spring", stiffness: 260, damping: 20 }}
-          aria-label="Open Alf AI"
-        >
-          <AlfLogo size="lg" />
-        </motion.button>
+      <AnimatePresence mode="sync">
+        {state?.isSplashShow && (
+          <motion.div
+            layout
+            key="introduction"
+            exit={{ y: '-100vh', borderRadius: '100px' }}
+            transition={{ duration: 1, ease: easeDefault }}
+            className="self-center"
+          >
+            <Introduction />
+          </motion.div>
+        )}
+      </AnimatePresence>
+      {!state?.isSplashShow && (
+        <AnimatePresence mode="wait">
+          <React.Fragment key={location.pathname}>
+            <TopNav />
+            <Routes location={location} key={location.pathname}>
+              <Route index element={<HomeTransition />} />
+              <Route path={routes.about} element={<AboutTransition />} />
+              <Route path={routes.summary} element={<SummaryTransition />} />
+            </Routes>
+          </React.Fragment>
+        </AnimatePresence>
       )}
-      
-      <Chatbot 
-        isOpen={isChatbotOpen} 
-        onClose={() => setIsChatbotOpen(false)} 
-      />
     </>
   )
 }
 
-const App: React.FC = () => {
+const App = () => {
   return (
-    <StateProvider>
-      <CursorProvider>
-        <Cursor />
-        <Menu />
-        <Page />
-        <ChatbotLauncher />
-      </CursorProvider>
-    </StateProvider>
+    <>
+      <LanguageProvider>
+        <StateProvider>
+          <CursorProvider>
+            <Cursor />
+            <Menu />
+            <Page />
+          </CursorProvider>
+        </StateProvider>
+      </LanguageProvider>
+    </>
   )
 }
 
