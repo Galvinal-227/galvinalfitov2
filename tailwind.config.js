@@ -5,7 +5,7 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        pixel: ['Pixelify Sans', 'sans-serif'],
+        pixel: ['Geist Pixel', 'sans-serif'],
         poppins: ['Poppins', 'sans-serif'],
         spartan: ['League Spartan', 'sans-serif'],
         display: ['Playfair Display', 'sans-serif']
