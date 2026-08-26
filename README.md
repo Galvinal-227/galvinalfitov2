@@ -4,7 +4,7 @@ A modern, interactive portfolio website built with React, TypeScript, Vite, and 
 
 ## 🚀 Live Demo
 
-🔗 https://galvinalfitov2.vercel.app
+🔗 https://galvinalfito.my.id
 
 ## ✨ Features
 
@@ -84,7 +84,7 @@ src/
 **Galvin Alfito**
 
 - GitHub: https://github.com/Galvinal-227
-- Portfolio: https://galvinalfitov2.vercel.app
+- Portfolio: https://galvinalfito.my.id
 
 ## 📄 License
 
