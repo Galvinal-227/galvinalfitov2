@@ -77,7 +77,7 @@ const Page: React.FC = () => {
   )
 }
 
-// ✅ Komponen ini hanya dirender ketika kondisi halaman sudah siap
+
 const ChatbotLauncher: React.FC = () => {
   const { state } = useContext(StateContext)
   const [isChatbotOpen, setIsChatbotOpen] = useState<boolean>(false)
