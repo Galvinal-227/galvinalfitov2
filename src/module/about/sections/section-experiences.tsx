@@ -107,6 +107,14 @@ export default function SectionProjects() {
       color: '#A3195B',
       link: 'https://github.com/galvinal-227',
       liveUrl: 'https://retro-os-blush.vercel.app'
+    },
+    {
+      text1: 'WHY I AM HERE?',
+      text2: '2026',
+      text3: 'Frontend - React, tailwind',
+      color: '#A3195B',
+      link: 'https://github.com/galvinal-227',
+      liveUrl: 'https://whyamihere-xi.vercel.app/'
     }
   ]
 
