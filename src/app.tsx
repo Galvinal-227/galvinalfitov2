@@ -102,7 +102,7 @@ const ChatbotLauncher: React.FC = () => {
           <Lottie 
             animationData={ChatbotAnimation} 
             loop={true}
-            style={{ width: 40, height: 40 }}
+            style={{ width: 80, height: 80 }}
           />
         </motion.button>
       )}
