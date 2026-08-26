@@ -10,6 +10,86 @@ const getPuter = () => {
   return null;
 };
 
+// Fungsi untuk mengekstrak teks dari berbagai format response
+const extractTextFromResponse = (response: any): string => {
+  // 1. String langsung
+  if (typeof response === 'string') {
+    return response;
+  }
+
+  // 2. Object dengan properti message.content
+  if (response?.message?.content) {
+    const content = response.message.content;
+    if (typeof content === 'string') return content;
+    if (Array.isArray(content)) {
+      return content
+        .map((part: any) => {
+          if (typeof part === 'string') return part;
+          if (part?.text) return part.text;
+          if (part?.content) return part.content;
+          return '';
+        })
+        .join('');
+    }
+    return JSON.stringify(content);
+  }
+
+  // 3. Object dengan properti content
+  if (response?.content) {
+    if (typeof response.content === 'string') return response.content;
+    if (Array.isArray(response.content)) {
+      return response.content
+        .map((part: any) => {
+          if (typeof part === 'string') return part;
+          if (part?.text) return part.text;
+          return '';
+        })
+        .join('');
+    }
+    return JSON.stringify(response.content);
+  }
+
+  // 4. Object dengan properti text
+  if (response?.text) {
+    return typeof response.text === 'string' ? response.text : JSON.stringify(response.text);
+  }
+
+  // 5. OpenAI format (choices array)
+  if (response?.choices && Array.isArray(response.choices) && response.choices.length > 0) {
+    const choice = response.choices[0];
+    if (choice?.message?.content) {
+      return typeof choice.message.content === 'string' 
+        ? choice.message.content 
+        : JSON.stringify(choice.message.content);
+    }
+    if (choice?.text) {
+      return choice.text;
+    }
+  }
+
+  // 6. Response adalah object dengan toString yang berguna
+  if (typeof response?.toString === 'function') {
+    const str = response.toString();
+    if (str !== '[object Object]') {
+      return str;
+    }
+  }
+
+  // 7. Response adalah array
+  if (Array.isArray(response)) {
+    return response
+      .map((item: any) => {
+        if (typeof item === 'string') return item;
+        if (item?.text) return item.text;
+        if (item?.content) return item.content;
+        return '';
+      })
+      .join('');
+  }
+
+  return '';
+};
+
 export function usePuterAI(selectedModel: string, messages: Message[]) {
   const [isLoading, setIsLoading] = useState(false);
   const [isPuterReady, setIsPuterReady] = useState(false);
@@ -76,35 +156,39 @@ export function usePuterAI(selectedModel: string, messages: Message[]) {
         if (puter && typeof puter.ai?.chat === 'function') {
           const fullPrompt = buildContext();
           console.log(`[Puter] Sending prompt to ${selectedModel}...`);
+          console.log('[Puter] Full prompt:', fullPrompt);
 
           const response = await puter.ai.chat(fullPrompt, {
             model: selectedModel,
-            max_tokens: 500,
             temperature: 0.7,
+            max_tokens: 500,
           });
 
-          let resultText = '';
-          if (typeof response === 'string') {
-            resultText = response;
-          } else if (response?.message?.content) {
-            resultText = response.message.content;
-          } else if (response?.content) {
-            resultText = response.content;
-          } else if (response?.text) {
-            resultText = response.text;
-          }
+          // Debug: lihat struktur response lengkap
+          console.log('[Puter] Response type:', typeof response);
+          console.log('[Puter] Response is array:', Array.isArray(response));
+          console.log('[Puter] Raw response:', response);
+          console.log('[Puter] JSON:', JSON.stringify(response, null, 2));
+
+          const resultText = extractTextFromResponse(response);
 
           if (resultText.trim()) {
-            console.log('[Puter] ✅ Response received');
+            console.log('[Puter] ✅ Extracted text:', resultText);
             onComplete(resultText.trim());
             return;
+          } else {
+            console.warn('[Puter] ⚠️ Empty text extracted');
           }
+        } else {
+          console.warn('[Puter] ⚠️ Puter not available');
         }
 
-        console.warn('[Puter] ❌ No valid response, using fallback');
+        console.warn('[Puter] ❌ Using fallback');
         onComplete(getFallbackResponse(text));
       } catch (err: any) {
         console.error('[Puter] Error:', err);
+        console.error('[Puter] Error message:', err?.message);
+        console.error('[Puter] Error stack:', err?.stack);
         onComplete(getFallbackResponse(text));
       } finally {
         setIsLoading(false);
