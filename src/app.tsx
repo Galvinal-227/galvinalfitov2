@@ -12,7 +12,7 @@ import { SummaryTransition } from 'pages/summary'
 import React, { useContext, useEffect, useRef, useState } from 'react'
 import { Route, Routes, useLocation } from 'react-router-dom'
 import Lottie from 'lottie-react'
-import ChatbotAnimation from '../src/assets/animation/Chat bot animation.json'
+import ChatbotAnimation from '../src/assets/animation/Chatbot.json'
 import Chatbot from 'components/chatbot/Chatbot'
 
 const Page: React.FC = () => {
