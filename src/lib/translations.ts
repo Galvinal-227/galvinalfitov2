@@ -53,7 +53,7 @@ const translations = {
   home_contact_lets_talk: { en: "Let's Talk", id: 'Ayo Bicara' },
 
   home_waste_your_time: { en: 'The Work', id: 'Karya' },
-home_and_the_world: { en: 'Speaaks', id: 'Berbicara' },
+home_and_the_world: { en: 'Speaks', id: 'Berbicara' },
 home_will_waste_you: { en: 'For Itself', id: 'Dengan Sendirinya' },
 
   about_me_marquee: { en: 'ABOUT ME - ', id: 'TENTANG SAYA - ' },
