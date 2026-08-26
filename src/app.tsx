@@ -3,20 +3,26 @@ import Introduction from 'components/common/introduction'
 import Menu from 'components/navigation/menu'
 import TopNav from 'components/navigation/top-nav'
 import CursorProvider from 'context/cursor'
-import LanguageProvider from 'context/language'
 import StateProvider, { StateContext } from 'context/state'
 import { AnimatePresence, motion } from 'framer-motion'
 import { easeDefault, routes } from 'lib/utils'
 import { AboutTransition } from 'pages/about'
 import { HomeTransition } from 'pages/home'
 import { SummaryTransition } from 'pages/summary'
-import React, { useContext, useEffect, useRef } from 'react'
+import React, { useContext, useEffect, useRef, useState } from 'react'
 import { Route, Routes, useLocation } from 'react-router-dom'
+import Lottie from 'lottie-react'
+import ChatbotAnimation from '../src/assets/animation/Chatbot.json'
+import Chatbot from './components/Chatbot/Chatbot'
 
-const Page = () => {
+const Page: React.FC = () => {
   const location = useLocation()
   const { state } = useContext(StateContext)
-  const containerPageRef = useRef<any>()
+  const containerPageRef = useRef<HTMLDivElement>(null)
+
+  if (!state) {
+    return <div className="h-screen w-screen bg-primary"></div>
+  }
 
   const removeStyleContainer = () => {
     setTimeout(() => {
@@ -34,16 +40,16 @@ const Page = () => {
 
   useEffect(() => {
     removeStyleContainer()
-  }, [state?.isSplashShow, state?.menuShow, location.pathname])
+  }, [state.isSplashShow, state.menuShow, location.pathname])
 
-  if (state?.isSmallDevice === undefined) {
+  if (state.isSmallDevice === undefined) {
     return <div className="h-screen w-screen bg-primary"></div>
   }
 
   return (
     <>
       <AnimatePresence mode="sync">
-        {state?.isSplashShow && (
+        {state.isSplashShow && (
           <motion.div
             layout
             key="introduction"
@@ -55,7 +61,7 @@ const Page = () => {
           </motion.div>
         )}
       </AnimatePresence>
-      {!state?.isSplashShow && (
+      {!state.isSplashShow && (
         <AnimatePresence mode="wait">
           <React.Fragment key={location.pathname}>
             <TopNav />
@@ -71,19 +77,54 @@ const Page = () => {
   )
 }
 
-const App = () => {
+// ✅ Komponen ini hanya dirender ketika kondisi halaman sudah siap
+const ChatbotLauncher: React.FC = () => {
+  const { state } = useContext(StateContext)
+  const [isChatbotOpen, setIsChatbotOpen] = useState<boolean>(false)
+
+  // Jangan render apapun saat loading, splash, atau menu terbuka
+  if (!state || state.isSplashShow || state.menuShow || state.isSmallDevice === undefined) {
+    return null
+  }
+
   return (
     <>
-      <LanguageProvider>
-        <StateProvider>
-          <CursorProvider>
-            <Cursor />
-            <Menu />
-            <Page />
-          </CursorProvider>
-        </StateProvider>
-      </LanguageProvider>
+      {!isChatbotOpen && (
+        <motion.button
+          onClick={() => setIsChatbotOpen(true)}
+          className="fixed bottom-6 right-6 z-[99998] w-16 h-16 bg-transparent rounded-full shadow-2xl hover:shadow-gray-500/30 transition-all flex items-center justify-center border border-gray-700"
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.95 }}
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          transition={{ type: "spring", stiffness: 260, damping: 20 }}
+        >
+          <Lottie 
+            animationData={ChatbotAnimation} 
+            loop={true}
+            style={{ width: 80, height: 80 }}
+          />
+        </motion.button>
+      )}
+      
+      <Chatbot 
+        isOpen={isChatbotOpen} 
+        onClose={() => setIsChatbotOpen(false)} 
+      />
     </>
+  )
+}
+
+const App: React.FC = () => {
+  return (
+    <StateProvider>
+      <CursorProvider>
+        <Cursor />
+        <Menu />
+        <Page />
+        <ChatbotLauncher />
+      </CursorProvider>
+    </StateProvider>
   )
 }
 
