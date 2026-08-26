@@ -1,44 +1,51 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
-import * as puter from '@heyputer/puter.js';
 import { getSystemPrompt } from './portfolioData';
 import type { Message } from './chatbot.types';
+
+// Akses window.puter dari CDN script
+const getPuter = (): PuterGlobal | null => {
+  if (typeof window !== 'undefined' && (window as any).puter) {
+    return (window as any).puter as PuterGlobal;
+  }
+  return null;
+};
 
 export function usePuterAI(selectedModel: string, messages: Message[]) {
   const [isLoading, setIsLoading] = useState(false);
   const [isPuterReady, setIsPuterReady] = useState(false);
   const abortControllerRef = useRef<AbortController | null>(null);
 
-  // Inisialisasi Puter.js dari NPM package
+  // Tunggu sampai window.puter tersedia
   useEffect(() => {
-    const initPuter = async () => {
-      try {
-        console.log('[Puter] Checking NPM package...');
-        console.log('[Puter] puter object:', puter);
-        console.log('[Puter] puter.ai:', puter?.ai);
-        console.log('[Puter] puter.ai.chat:', puter?.ai?.chat);
+    let checkCount = 0;
+    const maxChecks = 20; // 10 detik
 
-        if (puter && typeof puter.ai?.chat === 'function') {
-          console.log('[Puter] ✅ Ready from NPM');
-          setIsPuterReady(true);
-        } else {
-          console.warn('[Puter] ⚠️ puter.ai.chat not found in NPM package');
-          setIsPuterReady(false);
+    const checkPuter = () => {
+      const puter = getPuter();
+      if (puter && typeof puter.ai?.chat === 'function') {
+        console.log('[Puter] ✅ Ready');
+        setIsPuterReady(true);
+        return true;
+      }
+      return false;
+    };
+
+    // Cek langsung
+    if (checkPuter()) return;
+
+    // Cek berkala
+    const interval = setInterval(() => {
+      checkCount++;
+      if (checkPuter() || checkCount >= maxChecks) {
+        clearInterval(interval);
+        if (checkCount >= maxChecks) {
+          console.warn('[Puter] ⚠️ Script not loaded after 10s');
+          setIsPuterReady(true); // tetap aktif agar fallback bisa dipakai
         }
-      } catch (error) {
-        console.error('[Puter] Init error:', error);
-        setIsPuterReady(false);
       }
-    };
+    }, 500);
 
-    initPuter();
-  }, []);
-
-  useEffect(() => {
-    return () => {
-      if (abortControllerRef.current) {
-        abortControllerRef.current.abort();
-      }
-    };
+    return () => clearInterval(interval);
   }, []);
 
   const buildContext = useCallback(() => {
@@ -56,18 +63,20 @@ export function usePuterAI(selectedModel: string, messages: Message[]) {
       setIsLoading(true);
 
       try {
+        const puter = getPuter();
+
         if (puter && typeof puter.ai?.chat === 'function') {
           const fullPrompt = buildContext();
           console.log(`[Puter] Sending to ${selectedModel}...`);
 
+          // ✅ Panggil sesuai dokumentasi: puter.ai.chat(prompt, { model: "..." })
           const response = await puter.ai.chat(fullPrompt, {
             model: selectedModel,
-            temperature: 0.7,
           });
 
-          console.log('[Puter] Response type:', typeof response);
-          console.log('[Puter] Response:', response);
+          console.log('[Puter] Raw response:', response);
 
+          // ✅ Response dari Puter.js biasanya langsung string
           let resultText = '';
           if (typeof response === 'string') {
             resultText = response;
