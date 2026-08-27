@@ -91,7 +91,7 @@ export default function SectionProjects() {
       text3: 'Frontend - React, tailwind',
       color: '#A3195B',
       link: 'https://github.com/galvinal-227',
-      liveUrl: 'https://gwd-code-generator.vercel.app'
+      liveUrl: 'https://color-generator-kappa-three.vercel.app'
     },
     {
       text1: 'Velora Shop',
