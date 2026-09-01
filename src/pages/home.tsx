@@ -8,7 +8,6 @@ import SectionFA from 'module/home/sections/section-ga'
 import SectionFrontendDev from 'module/home/sections/section-frontend'
 import SectionInteractive from 'module/home/sections/section-interactive'
 import SectionIntroduction from 'module/home/sections/section-introduction'
-import SectionProjects from 'module/home/sections/section-projects'
 import SectionStats from 'module/home/sections/section-stats'
 import SectionTechStack from 'module/home/sections/section-tech-stack'
 // Import Collaboration Section
@@ -26,7 +25,6 @@ const Home = ({ asPreview }: PageProps) => {
           <SectionFA />
           <SectionInteractive />
           <SectionStats />
-          <SectionProjects />
           
           {/* Tambahkan Collaboration Section di sini */}
           <CollaborationSection />
