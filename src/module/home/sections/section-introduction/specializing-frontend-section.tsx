@@ -1,5 +1,5 @@
 import { useLenis } from '@studio-freight/react-lenis'
-import YesGood from 'assets/images/axl5i2.gif'
+import YesGood from 'assets/images/prabowo.jpg'
 import WithCursorElement from 'components/common/with-cursor-element'
 import Bubble from 'components/cursor-hover/bubble'
 import { motion, useTransform } from 'framer-motion'
