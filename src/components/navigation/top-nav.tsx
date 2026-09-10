@@ -93,26 +93,30 @@ const TopNav = () => {
             <Cursor />
             <WithCursorElement fallbackState={{ element: null }} state={{ element: langInCursor.in as any }}>
               <button
-                type="button"
-                onClick={() => setLang('id')}
-                aria-pressed={lang === 'id'}
-                className={`${linkClass} cursor-pointer ${lang === 'id' ? 'underline' : 'opacity-50'}`}
-              >
-                IN
-              </button>
+                  type="button"
+                  onClick={() => setLang('id')}
+                  aria-pressed={lang === 'id'}
+                  className={`${linkClass} cursor-pointer pointer-events-auto ${
+                    lang === 'id' ? 'underline' : 'opacity-50'
+                  }`}
+                >
+                  IN
+                </button>
             </WithCursorElement>
           </CursorProvider>
           <CursorProvider>
             <Cursor />
             <WithCursorElement fallbackState={{ element: null }} state={{ element: langEnCursor.in as any }}>
               <button
-                type="button"
-                onClick={() => setLang('en')}
-                aria-pressed={lang === 'en'}
-                className={`${linkClass} cursor-pointer ${lang === 'en' ? 'underline' : 'opacity-50'}`}
-              >
-                EN
-              </button>
+                  type="button"
+                  onClick={() => setLang('en')}
+                  aria-pressed={lang === 'en'}
+                  className={`${linkClass} cursor-pointer pointer-events-auto ${
+                    lang === 'en' ? 'underline' : 'opacity-50'
+                  }`}
+                >
+                  EN
+                </button>
             </WithCursorElement>
           </CursorProvider>
         </div>
