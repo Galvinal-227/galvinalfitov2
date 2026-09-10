@@ -40,6 +40,14 @@ export default function Menu() {
         >
           <MenuClose />
           <p className={`font-pixel ${BLUR_HOVER_LINK} mb-4 md:m-0`}>{t('menu_read_more')}</p>
+          <a
+            href="https://gwdstudio.my.id"
+            target="_blank"
+            rel="noopener noreferrer"
+            className={`${BLUR_HOVER_LINK} font-pixel`}
+          >
+            GWD Studio ↗
+          </a>
           <div className="flex h-full w-full flex-col justify-between ">
             <MenuNavigation />
             <MenuFooter />
