@@ -113,6 +113,14 @@ const projectCategories: { title: string; key: string; projects: Project[] }[] =
         link: 'https://github.com/galvinal-227',
         liveUrl: 'https://color-generator-kappa-three.vercel.app'
       },
+      {
+        text1: 'GWD Playground Api',
+        text2: '2026',
+        text3: 'Frontend - React, tailwind, Firebase',
+        color: '#A3195B',
+        link: 'https://github.com/galvinal-227',
+        liveUrl: 'https://gwd-api-playground.vercel.app'
+      },
     ]
   },
   {
@@ -137,8 +145,20 @@ const projectCategories: { title: string; key: string; projects: Project[] }[] =
       },
     ]
   },
-]
-
+  {
+    title: 'Android Apps',
+    key: 'apps',
+    projects: [
+      {
+        text1: 'Pocket Dev',
+        text2: '2026',
+        text3: 'Flutter - Dart',
+        color: '#2E9E6C',
+        link: 'https://github.com/galvinal-227',
+        liveUrl: 'https://pocket-dev-two.vercel.app'
+      },
+  ]
+},
 export default function SectionProjects() {
   const { t } = useTranslation()
   const [hoveredIndex, setHoveredIndex] = useState<string | null>(null)
