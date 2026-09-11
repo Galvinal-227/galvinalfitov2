@@ -157,8 +157,9 @@ const projectCategories: { title: string; key: string; projects: Project[] }[] =
         link: 'https://github.com/galvinal-227',
         liveUrl: 'https://pocket-dev-two.vercel.app'
       },
-  ]
-},
+    ]
+  },
+]
 export default function SectionProjects() {
   const { t } = useTranslation()
   const [hoveredIndex, setHoveredIndex] = useState<string | null>(null)
