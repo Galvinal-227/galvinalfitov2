@@ -30,14 +30,6 @@ const projectCategories: { title: string; key: string; projects: Project[] }[] =
     key: 'frontend',
     projects: [
       {
-        text1: 'Gallery With You',
-        text2: '2025',
-        text3: 'Frontend - React, Express, Chart.js',
-        color: '#F1592A',
-        link: 'https://github.com/galvinal-227',
-        liveUrl: 'https://youandme-six.vercel.app'
-      },
-      {
         text1: 'Velora Shop',
         text2: '2026',
         text3: 'Frontend - React, tailwind',
