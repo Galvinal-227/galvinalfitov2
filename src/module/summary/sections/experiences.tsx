@@ -1,13 +1,19 @@
 /* eslint-disable react/no-unescaped-entities */
-import React, { useState } from 'react'
+import React, { useState, type ReactNode } from 'react'
 import TitleSummaries from '../title-summaries'
 import PattrickImg from 'assets/images/pattrick.gif'
 import { motion } from 'framer-motion'
 import WithCursorElement from 'components/common/with-cursor-element'
 
-const EASE = [0.22, 1, 0.36, 1]
+const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1]
 
-const Reveal = ({ children, delay = 0, className = '' }) => (
+type RevealProps = {
+  children: ReactNode
+  delay?: number
+  className?: string
+}
+
+const Reveal = ({ children, delay = 0, className = '' }: RevealProps) => (
   <motion.div
     className={className}
     initial={{ opacity: 0, y: 18 }}
@@ -19,20 +25,39 @@ const Reveal = ({ children, delay = 0, className = '' }) => (
   </motion.div>
 )
 
-const MetaLabel = ({ children, className = '' }) => (
+type MetaLabelProps = {
+  children: ReactNode
+  className?: string
+}
+
+const MetaLabel = ({ children, className = '' }: MetaLabelProps) => (
   <span className={`font-mono text-[11px] uppercase tracking-[0.18em] text-neutral-400 ${className}`}>
     {children}
   </span>
 )
 
-const Section = ({ id, label, children }) => (
+type SectionProps = {
+  id: string
+  label: string
+  children: ReactNode
+}
+
+const Section = ({ id, label, children }: SectionProps) => (
   <section id={id} className="border-t border-neutral-900/10 pt-10 sm:pt-14">
     <TitleSummaries text={label} observeId={id} />
     <div className="mt-8 sm:mt-10">{children}</div>
   </section>
 )
 
-const EntryRow = ({ period, title, subtitle, location, delay = 0 }) => (
+type EntryRowProps = {
+  period: string
+  title: string
+  subtitle?: string
+  location?: string
+  delay?: number
+}
+
+const EntryRow = ({ period, title, subtitle, location, delay = 0 }: EntryRowProps) => (
   <Reveal delay={delay}>
     <div className="grid grid-cols-1 gap-3 sm:grid-cols-12 sm:gap-8">
       <div className="sm:col-span-3">
@@ -55,7 +80,12 @@ const EntryRow = ({ period, title, subtitle, location, delay = 0 }) => (
   </Reveal>
 )
 
-const ProjectLink = ({ href, label }) => (
+type ProjectLinkProps = {
+  href: string
+  label: string
+}
+
+const ProjectLink = ({ href, label }: ProjectLinkProps) => (
   <a
     href={href}
     target="_blank"
@@ -71,7 +101,24 @@ const ProjectLink = ({ href, label }) => (
   </a>
 )
 
-const ProjectRow = ({ project, index, isDimmed, onEnter, onLeave }) => {
+type Project = {
+  text1: string
+  text2: string
+  text3: string
+  color: string
+  link: string
+  liveUrl?: string
+}
+
+type ProjectRowProps = {
+  project: Project
+  index: number
+  isDimmed: boolean
+  onEnter: () => void
+  onLeave: () => void
+}
+
+const ProjectRow = ({ project, index, isDimmed, onEnter, onLeave }: ProjectRowProps) => {
   const parts = project.text3.split(' - ')
   const category = parts[0]
   const tech = (parts[1] || project.text3).replace(/,\s*/g, ' · ')
@@ -120,7 +167,13 @@ const ProjectRow = ({ project, index, isDimmed, onEnter, onLeave }) => {
   )
 }
 
-const ActivityRow = ({ title, detail, index }) => (
+type ActivityRowProps = {
+  title: string
+  detail: string
+  index: number
+}
+
+const ActivityRow = ({ title, detail, index }: ActivityRowProps) => (
   <Reveal delay={index * 0.05}>
     <div className="group grid grid-cols-1 gap-2 border-t border-neutral-900/10 py-5 transition-colors duration-300 hover:border-neutral-900/30 sm:grid-cols-12 sm:items-baseline sm:gap-8">
       <h3 className="text-[13px] font-medium uppercase tracking-[0.18em] text-neutral-900 transition-transform duration-300 ease-out group-hover:translate-x-1 sm:col-span-4">
@@ -131,7 +184,13 @@ const ActivityRow = ({ title, detail, index }) => (
   </Reveal>
 )
 
-const TechGroup = ({ name, technologies, index }) => (
+type TechGroupProps = {
+  name: string
+  technologies: string[]
+  index: number
+}
+
+const TechGroup = ({ name, technologies, index }: TechGroupProps) => (
   <Reveal delay={index * 0.05}>
     <div className="grid grid-cols-1 gap-3 border-t border-neutral-900/10 py-6 sm:grid-cols-12 sm:gap-8">
       <div className="sm:col-span-3">
@@ -186,9 +245,9 @@ const TechStack = () => {
 }
 
 const Experiences = () => {
-  const [activeProject, setActiveProject] = useState(null)
+  const [activeProject, setActiveProject] = useState<number | null>(null)
 
-  const projects = [
+  const projects: Project[] = [
     {
       text1: 'Learn Coding',
       text2: '2026',
