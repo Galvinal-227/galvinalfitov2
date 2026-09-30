@@ -81,21 +81,21 @@ const contacts: ContactItem[] = [
 
 const TechStack = () => {
   return (
-    <div className="border-t border-white/10">
+    <div className="w-full max-w-2xl border-t border-white/10">
       {techCategories.map((category, idx) => (
         <motion.div
           key={category.name}
-          initial={{ opacity: 0, y: 14 }}
+          initial={{ opacity: 0, y: 10 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: '-60px' }}
-          transition={{ duration: 0.45, delay: idx * 0.06 }}
-          className="grid grid-cols-1 gap-2 border-b border-white/10 py-5 sm:grid-cols-[170px_1fr] sm:gap-8"
+          viewport={{ once: true, margin: '-40px' }}
+          transition={{ duration: 0.4, delay: idx * 0.05 }}
+          className="grid grid-cols-1 gap-1 border-b border-white/10 py-4 sm:grid-cols-[130px_1fr] sm:gap-6"
         >
-          <h3 className="font-pixel text-sm tracking-wide text-yellow-300 sm:text-base">
+          <h3 className="font-pixel text-sm tracking-wide text-yellow-300">
             {category.name}
           </h3>
 
-          <div className="flex flex-wrap items-baseline gap-x-3 gap-y-2">
+          <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
             {category.technologies.map((tech, i) => (
               <React.Fragment key={tech}>
                 {i > 0 && (
@@ -103,7 +103,7 @@ const TechStack = () => {
                     /
                   </span>
                 )}
-                <span className="text-sm text-white/65 transition-colors duration-200 hover:text-yellow-300 sm:text-[15px]">
+                <span className="text-sm text-white/70 transition-colors duration-200 hover:text-white">
                   {tech}
                 </span>
               </React.Fragment>
@@ -117,18 +117,18 @@ const TechStack = () => {
 
 const Experiences = () => {
   return (
-    <div className="relative mt-[10vh] space-y-20">
+    <div className="relative mx-auto mt-[10vh] max-w-5xl space-y-16 px-4 sm:px-6">
       {/* Education & Experience */}
-      <div className="grid grid-cols-1 gap-16 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-10 md:grid-cols-2 md:gap-16">
         <section id="education">
           <TitleSummaries text="Education" observeId="education" />
 
           <motion.div
             initial={{ opacity: 0, y: 14 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: '-60px' }}
+            viewport={{ once: true, margin: '-50px' }}
             transition={{ duration: 0.5 }}
-            className="group border-l border-white/15 pl-5 transition-colors duration-300 hover:border-yellow-300/60"
+            className="group mt-6 border-l border-white/15 pl-5 transition-colors duration-300 hover:border-yellow-300/60"
           >
             <h3 className="font-pixel text-lg leading-snug text-white transition-colors duration-300 group-hover:text-yellow-300">
               SMKN 2 Nganjuk
@@ -148,9 +148,9 @@ const Experiences = () => {
           <motion.div
             initial={{ opacity: 0, y: 14 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: '-60px' }}
+            viewport={{ once: true, margin: '-50px' }}
             transition={{ duration: 0.5, delay: 0.08 }}
-            className="group border-l border-white/15 pl-5 transition-colors duration-300 hover:border-yellow-300/60"
+            className="group mt-6 border-l border-white/15 pl-5 transition-colors duration-300 hover:border-yellow-300/60"
           >
             <h3 className="font-pixel text-lg leading-snug text-white transition-colors duration-300 group-hover:text-yellow-300">
               Freelance / Personal Project
@@ -167,31 +167,30 @@ const Experiences = () => {
       <section id="selected-activities">
         <TitleSummaries text="Selected Activities" observeId="selected-activities" />
 
-        <ul className="border-t border-white/10">
+        <ul className="mt-6 border-t border-white/10">
           {activities.map((activity, index) => (
             <motion.li
               key={activity.title}
               initial={{ opacity: 0, y: 14 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: '-50px' }}
+              viewport={{ once: true, margin: '-40px' }}
               transition={{ duration: 0.45, delay: index * 0.06 }}
               className="group border-b border-white/10"
             >
-              <div className="grid grid-cols-1 gap-1 py-6 transition-transform duration-300 ease-out group-hover:translate-x-1 sm:grid-cols-[auto_1fr_auto] sm:items-baseline sm:gap-6">
-                <span className="font-pixel text-xs text-white/25 transition-colors duration-300 group-hover:text-yellow-300/70">
+              <div className="grid grid-cols-[30px_1fr] gap-4 py-5 transition-transform duration-300 ease-out group-hover:translate-x-1 sm:gap-6">
+                <span className="font-pixel text-xs text-white/25 transition-colors duration-300 group-hover:text-yellow-300/70 pt-0.5">
                   {String(index + 1).padStart(2, '0')}
                 </span>
 
                 <div>
-                  <h3 className="font-pixel text-base text-white transition-colors duration-300 group-hover:text-yellow-300 sm:text-lg">
+                  <h3 className="font-pixel text-base text-white transition-colors duration-300 group-hover:text-yellow-300">
                     {activity.title}
                   </h3>
                   <p className="mt-1 text-sm text-white/60">{activity.description}</p>
+                  <p className="mt-2 text-[11px] uppercase tracking-[0.16em] text-white/35">
+                    {activity.meta}
+                  </p>
                 </div>
-
-                <span className="text-[11px] uppercase tracking-[0.16em] text-white/35 sm:text-right">
-                  {activity.meta}
-                </span>
               </div>
             </motion.li>
           ))}
@@ -199,7 +198,7 @@ const Experiences = () => {
       </section>
 
       {/* Certificate & Tech Stack */}
-      <div className="grid grid-cols-1 gap-16 lg:grid-cols-[320px_1fr]">
+      <div className="grid grid-cols-1 gap-12 lg:grid-cols-[360px_1fr] lg:items-start">
         <section id="selected-certificate">
           <TitleSummaries text="Selected Certificate" observeId="selected-certificate" />
 
@@ -209,30 +208,33 @@ const Experiences = () => {
             rel="noreferrer"
             initial={{ opacity: 0, y: 14 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: '-60px' }}
+            viewport={{ once: true, margin: '-50px' }}
             transition={{ duration: 0.5 }}
             whileHover={{ y: -4 }}
-            className="group relative block overflow-hidden rounded-lg border border-white/15 bg-white/[0.02]"
+            className="group relative mt-6 block overflow-hidden rounded-lg border border-white/15 bg-white/[0.02] p-1.5"
           >
             <img
               src="/Latika-1.png"
               alt="Certificate React"
-              className="w-full rounded-lg object-cover transition-transform duration-500 ease-out group-hover:scale-[1.04]"
+              className="w-full rounded-md object-cover transition-transform duration-500 ease-out group-hover:scale-[1.03]"
             />
 
-            <div className="pointer-events-none absolute inset-0 flex items-end bg-gradient-to-t from-black/85 via-black/10 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-              <span className="p-3 font-pixel text-xs text-yellow-300">
+            <div className="pointer-events-none absolute inset-0 flex items-end bg-black/60 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+              <span className="p-4 font-pixel text-xs text-yellow-300">
                 View Certificate
               </span>
             </div>
           </motion.a>
         </section>
 
-        <section id="tech">
+        <section id="tech" className="w-full">
           <TitleSummaries text="Tech Stack" observeId="tech" />
-          <TechStack />
+          
+          <div className="mt-6">
+            <TechStack />
+          </div>
 
-          <div className="mt-8 text-center">
+          <div className="mt-8 flex justify-center lg:justify-start">
             <WithCursorElement
               state={{
                 element: {
@@ -252,7 +254,7 @@ const Experiences = () => {
                 }
               }}
             >
-              <span className="font-pixel inline-flex items-center gap-2 text-xl text-yellow-200 lg:text-2xl">
+              <span className="font-pixel inline-flex items-center gap-2 text-lg text-yellow-200 lg:text-xl">
                 And Keep Learning...
               </span>
             </WithCursorElement>
@@ -264,13 +266,13 @@ const Experiences = () => {
       <section id="contact">
         <TitleSummaries text="Contact" observeId="contact" />
 
-        <ul className="border-t border-white/10">
+        <ul className="mt-6 border-t border-white/10">
           {contacts.map((contact, index) => (
             <motion.li
               key={contact.label}
               initial={{ opacity: 0, y: 14 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: '-50px' }}
+              viewport={{ once: true, margin: '-40px' }}
               transition={{ duration: 0.45, delay: index * 0.06 }}
               className="border-b border-white/10"
             >
