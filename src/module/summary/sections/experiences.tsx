@@ -1,61 +1,193 @@
 /* eslint-disable react/no-unescaped-entities */
-import React from 'react'
+import React, { useState } from 'react'
 import TitleSummaries from '../title-summaries'
 import PattrickImg from 'assets/images/pattrick.gif'
 import { motion } from 'framer-motion'
-import Experience from '../experience'
 import WithCursorElement from 'components/common/with-cursor-element'
+
+const EASE = [0.22, 1, 0.36, 1]
+
+const Reveal = ({ children, delay = 0, className = '' }) => (
+  <motion.div
+    className={className}
+    initial={{ opacity: 0, y: 18 }}
+    whileInView={{ opacity: 1, y: 0 }}
+    viewport={{ once: true, margin: '-60px' }}
+    transition={{ duration: 0.55, delay, ease: EASE }}
+  >
+    {children}
+  </motion.div>
+)
+
+const MetaLabel = ({ children, className = '' }) => (
+  <span className={`font-mono text-[11px] uppercase tracking-[0.18em] text-neutral-400 ${className}`}>
+    {children}
+  </span>
+)
+
+const Section = ({ id, label, children }) => (
+  <section id={id} className="border-t border-neutral-900/10 pt-10 sm:pt-14">
+    <TitleSummaries text={label} observeId={id} />
+    <div className="mt-8 sm:mt-10">{children}</div>
+  </section>
+)
+
+const EntryRow = ({ period, title, subtitle, location, delay = 0 }) => (
+  <Reveal delay={delay}>
+    <div className="grid grid-cols-1 gap-3 sm:grid-cols-12 sm:gap-8">
+      <div className="sm:col-span-3">
+        <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-neutral-500">{period}</span>
+      </div>
+      <div className="sm:col-span-9">
+        <h3 className="text-2xl font-medium leading-tight tracking-tight text-neutral-900 sm:text-3xl">
+          {title}
+        </h3>
+        {subtitle && (
+          <p className="mt-3 max-w-xl text-[15px] leading-relaxed text-neutral-600">{subtitle}</p>
+        )}
+        {location && (
+          <p className="mt-4 font-mono text-[11px] uppercase tracking-[0.18em] text-neutral-400">
+            {location}
+          </p>
+        )}
+      </div>
+    </div>
+  </Reveal>
+)
+
+const ProjectLink = ({ href, label }) => (
+  <a
+    href={href}
+    target="_blank"
+    rel="noreferrer"
+    className="group inline-flex items-center gap-1.5 font-mono text-[11px] uppercase tracking-[0.18em] text-neutral-500 transition-colors duration-200 hover:text-neutral-900"
+  >
+    <span className="border-b border-transparent pb-0.5 transition-colors duration-200 group-hover:border-neutral-900">
+      {label}
+    </span>
+    <span className="inline-block transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:translate-x-0.5">
+      ↗
+    </span>
+  </a>
+)
+
+const ProjectRow = ({ project, index, isDimmed, onEnter, onLeave }) => {
+  const parts = project.text3.split(' - ')
+  const category = parts[0]
+  const tech = (parts[1] || project.text3).replace(/,\s*/g, ' · ')
+  const number = String(index + 1).padStart(2, '0')
+
+  return (
+    <motion.article
+      initial={{ opacity: 0, y: 16 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: '-40px' }}
+      transition={{ duration: 0.5, delay: (index % 5) * 0.04, ease: EASE }}
+    >
+      <div
+        onMouseEnter={onEnter}
+        onMouseLeave={onLeave}
+        className={`border-t border-neutral-900/10 py-6 transition-opacity duration-300 sm:py-7 ${
+          isDimmed ? 'opacity-30' : 'opacity-100'
+        }`}
+      >
+        <div className="grid grid-cols-1 gap-x-8 gap-y-3 sm:grid-cols-12 sm:items-baseline">
+          <div className="sm:col-span-1">
+            <MetaLabel>{number}</MetaLabel>
+          </div>
+
+          <div className="sm:col-span-6">
+            <h3 className="text-xl font-medium leading-snug tracking-tight text-neutral-900 transition-transform duration-300 ease-out group-hover:translate-x-1 sm:text-2xl">
+              {project.text1}
+            </h3>
+            <p className="mt-2 text-sm leading-relaxed text-neutral-500">{tech}</p>
+          </div>
+
+          <div className="sm:col-span-2">
+            <p className="font-mono text-xs text-neutral-500">{project.text2}</p>
+            <p className="mt-1 font-mono text-[11px] uppercase tracking-[0.18em] text-neutral-400">
+              {category}
+            </p>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-2 sm:col-span-3 sm:justify-end">
+            <ProjectLink href={project.link} label="GitHub" />
+            {project.liveUrl && <ProjectLink href={project.liveUrl} label="Live" />}
+          </div>
+        </div>
+      </div>
+    </motion.article>
+  )
+}
+
+const ActivityRow = ({ title, detail, index }) => (
+  <Reveal delay={index * 0.05}>
+    <div className="group grid grid-cols-1 gap-2 border-t border-neutral-900/10 py-5 transition-colors duration-300 hover:border-neutral-900/30 sm:grid-cols-12 sm:items-baseline sm:gap-8">
+      <h3 className="text-[13px] font-medium uppercase tracking-[0.18em] text-neutral-900 transition-transform duration-300 ease-out group-hover:translate-x-1 sm:col-span-4">
+        {title}
+      </h3>
+      <p className="text-sm leading-relaxed text-neutral-500 sm:col-span-8">{detail}</p>
+    </div>
+  </Reveal>
+)
+
+const TechGroup = ({ name, technologies, index }) => (
+  <Reveal delay={index * 0.05}>
+    <div className="grid grid-cols-1 gap-3 border-t border-neutral-900/10 py-6 sm:grid-cols-12 sm:gap-8">
+      <div className="sm:col-span-3">
+        <MetaLabel>{name}</MetaLabel>
+      </div>
+      <div className="flex flex-wrap items-baseline gap-x-3 gap-y-2 sm:col-span-9">
+        {technologies.map((tech, i) => (
+          <React.Fragment key={tech}>
+            {i > 0 && <span className="select-none text-neutral-300">·</span>}
+            <span className="inline-block cursor-default text-lg tracking-tight text-neutral-700 transition-all duration-200 ease-out hover:-translate-y-0.5 hover:text-neutral-900 sm:text-xl">
+              {tech}
+            </span>
+          </React.Fragment>
+        ))}
+      </div>
+    </div>
+  </Reveal>
+)
 
 const TechStack = () => {
   const techCategories = [
     {
-      name: "Frontend",
-      technologies: ["React", "Next.js", "TailwindCSS", "Vite", "HTML"]
+      name: 'Frontend',
+      technologies: ['React', 'Next.js', 'TailwindCSS', 'Vite', 'HTML']
     },
     {
-      name: "Backend",
-      technologies: ["Node.js"]
+      name: 'Backend',
+      technologies: ['Node.js']
     },
     {
-      name: "Database & Tools",
-      technologies: ["Git", "GitHub", "VS Code", "MongoDb", "PostgreSQL", "Docker", "GraphQL"]
+      name: 'Database & Tools',
+      technologies: ['Git', 'GitHub', 'VS Code', 'MongoDb', 'PostgreSQL', 'Docker', 'GraphQL']
     },
     {
-      name: "Languages",
-      technologies: ["TypeScript", "JavaScript", "Python"]
+      name: 'Languages',
+      technologies: ['TypeScript', 'JavaScript', 'Python']
     }
   ]
 
   return (
-    <div className="space-y-8">
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-        {techCategories.map((category, idx) => (
-          <div
-            key={category.name}
-            className="rounded-lg border p-4 bg-transparent"
-          >
-            <h3 className="mb-4 font-pixel text-xl font-semibold text-yellow-300">
-              {category.name}
-            </h3>
-
-            <div className="flex flex-wrap gap-3">
-              {category.technologies.map((tech, i) => (
-                <span
-                  key={i}
-                  className="rounded-md border border-white/20 px-3 py-1 text-sm text-white transition hover:border-yellow-300 hover:text-yellow-300"
-                >
-                  {tech}
-                </span>
-              ))}
-            </div>
-          </div>
-        ))}
-      </div>
+    <div>
+      {techCategories.map((category, index) => (
+        <TechGroup
+          key={category.name}
+          name={category.name}
+          technologies={category.technologies}
+          index={index}
+        />
+      ))}
     </div>
   )
 }
 
 const Experiences = () => {
+  const [activeProject, setActiveProject] = useState(null)
+
   const projects = [
     {
       text1: 'Learn Coding',
@@ -67,7 +199,7 @@ const Experiences = () => {
     },
     {
       text1: 'Gallery With You',
-      text2: '2026',  
+      text2: '2026',
       text3: 'Frontend - React, Tailwind, Vite, framer-motion',
       color: '#F1592A',
       link: 'https://github.com/galvinal-227',
@@ -147,130 +279,183 @@ const Experiences = () => {
     }
   ]
 
+  const activities = [
+    {
+      title: 'Self Learning',
+      detail: 'React · JavaScript · TypeScript'
+    },
+    {
+      title: 'Game Development',
+      detail: 'Construct 3 · Cowboy Shooter'
+    },
+    {
+      title: 'Web Development',
+      detail: 'React · Tailwind · UI Development'
+    },
+    {
+      title: 'Version Control',
+      detail: 'Git · GitHub · Collaboration'
+    }
+  ]
+
   return (
-    <div className="relative mt-[10vh] grid grid-cols-1 gap-16 lg:grid-cols-2">
-      <div id="education">
-        <TitleSummaries text="Education" observeId="education" />
-        <ul className="list-disc marker:text-white">
-          <Experience
-            notAllowed
-            title="SMKN 2 Nganjuk - PPLG (Pengembangan Perangkat Lunak dan Gim)"
-            sentences={['Nganjuk', `2023 - ${new Date().getFullYear()}`]}
-            link="/"
-          />
-        </ul>
-      </div>
-
-      <div id="experiences">
-        <TitleSummaries text="Experiences" observeId="experiences" />
-        <ul className="list-disc marker:text-white">
-          <Experience 
-            title="Freelance / Personal Project" 
-            sentences={['Frontend & Backend', '2025 - Sekarang']} 
-            link="/" 
-          />
-        </ul>
-      </div>
-
-      <div id="selected-project">
-        <TitleSummaries text="Selected Projects" observeId="selected-project" />
-        <ul className="list-disc marker:text-white">
-          {projects.slice(0, 3).map((project, index) => (
-            <Experience 
-              key={index}
-              notAllowed 
-              title={project.text1}
-              sentences={[project.text3, project.text2]}
-              link={project.link}
-              className={index > 0 ? "mt-5" : ""}
+    <div className="bg-[#FAF9F6] text-neutral-900">
+      <div className="mx-auto w-full max-w-6xl px-5 pb-24 pt-6 sm:px-8 lg:px-12">
+        <div className="space-y-16 sm:space-y-20">
+          <Section id="education" label="Education">
+            <EntryRow
+              period="2023 — Present"
+              title="SMKN 2 Nganjuk"
+              subtitle="Pengembangan Perangkat Lunak dan Gim"
+              location="Nganjuk, Indonesia"
             />
-          ))}
-        </ul>
-      </div>  
+          </Section>
 
-      <div id="selected-activities">
-        <TitleSummaries text="Selected Activities" observeId="selected-activities" />
-        <ul className="list-disc marker:text-white">
-          <Experience 
-            notAllowed 
-            title="Self Learning Programming" 
-            sentences={['Belajar React, TypeScript, dan JavaScript secara mandiri', '2024 - Sekarang']} 
-            link="/"
-          />
+          <Section id="experiences" label="Experiences">
+            <EntryRow
+              period="2025 — Present"
+              title="Freelance / Personal Project"
+              subtitle="Frontend & Backend Development — membangun antarmuka dan logika aplikasi web secara mandiri, dari eksplorasi ide hingga deploy."
+              location="Remote"
+            />
+          </Section>
 
-          <Experience 
-            notAllowed 
-            title="Game Development Practice" 
-            sentences={['Membuat game menggunakan Construct 3', 'Project: Cowboy Shooter']} 
-            className="mt-5" 
-            link="/"
-          />
+          <Section id="selected-project" label="Selected Projects">
+            <div
+              onMouseLeave={() => setActiveProject(null)}
+              className="border-b border-neutral-900/10"
+            >
+              {projects.map((project, index) => (
+                <ProjectRow
+                  key={project.text1 + index}
+                  project={project}
+                  index={index}
+                  isDimmed={activeProject !== null && activeProject !== index}
+                  onEnter={() => setActiveProject(index)}
+                  onLeave={() => setActiveProject(null)}
+                />
+              ))}
+            </div>
+          </Section>
 
-          <Experience 
-            notAllowed 
-            title="Web Development Exploration" 
-            sentences={['Membangun website dengan React + Tailwind', 'Membuat UI modern & responsive']} 
-            className="mt-5" 
-            link="/"
-          />
+          <Section id="selected-activities" label="Selected Activities">
+            <div className="border-b border-neutral-900/10">
+              {activities.map((activity, index) => (
+                <ActivityRow
+                  key={activity.title}
+                  title={activity.title}
+                  detail={activity.detail}
+                  index={index}
+                />
+              ))}
+            </div>
+          </Section>
 
-          <Experience 
-            notAllowed 
-            title="Version Control Learning" 
-            sentences={['Menggunakan Git & GitHub untuk manage project', 'Collaborative workflow']} 
-            className="mt-5" 
-            link="/"
-          />
-        </ul>
-      </div>
+          <Section id="selected-certificate" label="Selected Certificate">
+            <div className="grid grid-cols-1 gap-8 sm:grid-cols-12 sm:items-end sm:gap-10">
+              <div className="sm:col-span-5">
+                <MetaLabel>2026</MetaLabel>
+                <h3 className="mt-3 text-2xl font-medium leading-tight tracking-tight text-neutral-900 sm:text-3xl">
+                  React Development
+                </h3>
+                <p className="mt-3 max-w-sm text-sm leading-relaxed text-neutral-500">
+                  Sertifikat penyelesaian program pengembangan aplikasi web berbasis React.
+                </p>
+              </div>
 
-      <div id="selected-certificate">
-        <TitleSummaries text="Selected Certificate" observeId="selected-certificate" />
-        <div className="flex flex-wrap gap-6">
-          <img
-            src="/Latika-1.png"
-            alt="Certificate React"
-            className="w-[300px] rounded-lg shadow-lg hover:scale-105 transition"
-          />
+              <div className="sm:col-span-7">
+                <a
+                  href="/Latika-1.png"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="group block overflow-hidden border border-neutral-900/10 bg-white"
+                >
+                  <div className="relative overflow-hidden">
+                    <img
+                      src="/Latika-1.png"
+                      alt="Certificate React Development"
+                      className="h-auto w-full transition-transform duration-700 ease-out group-hover:scale-[1.03]"
+                    />
+                    <div className="absolute inset-0 flex items-end justify-between bg-neutral-900/0 p-4 opacity-0 transition-all duration-300 group-hover:bg-neutral-900/40 group-hover:opacity-100">
+                      <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-white">
+                        Open certificate
+                      </span>
+                      <span className="inline-block text-white transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:translate-x-0.5">
+                        ↗
+                      </span>
+                    </div>
+                  </div>
+                </a>
+              </div>
+            </div>
+          </Section>
+
+          <Section id="tech" label="Tech Stack">
+            <TechStack />
+
+            <div className="mt-10 flex items-center">
+              <WithCursorElement
+                state={{
+                  element: {
+                    element: (
+                      <motion.img
+                        src={PattrickImg}
+                        alt="getting dizzy"
+                        initial={{ y: -60, opacity: 0 }}
+                        animate={{ y: 0, opacity: 0.7 }}
+                        exit={{ y: 60, opacity: 0 }}
+                        transition={{ duration: 0.4 }}
+                        className="w-[180px] sm:w-[220px]"
+                      />
+                    ),
+                    key: 'dizzy',
+                    type: 'hover'
+                  }
+                }}
+              >
+                <span className="font-pixel inline-flex items-center gap-2 text-sm tracking-wide text-neutral-400 transition-colors duration-300 hover:text-neutral-900 sm:text-base">
+                  And keep learning...
+                </span>
+              </WithCursorElement>
+            </div>
+          </Section>
+
+          <Section id="contact" label="Contact">
+            <p className="max-w-md text-sm leading-relaxed text-neutral-500">
+              Let&apos;s build something. Terbuka untuk kolaborasi, proyek freelance, maupun
+              kesempatan belajar baru.
+            </p>
+
+            <div className="mt-10 space-y-10">
+              <div>
+                <MetaLabel>Email</MetaLabel>
+                <a
+                  href="mailto:galvinalfito@gmail.com"
+                  className="mt-3 block break-words text-2xl font-medium tracking-tight text-neutral-900 underline decoration-neutral-300 decoration-1 underline-offset-[6px] transition-colors duration-300 hover:decoration-neutral-900 sm:text-4xl lg:text-5xl"
+                >
+                  galvinalfito@gmail.com
+                </a>
+              </div>
+
+              <div>
+                <MetaLabel>LinkedIn</MetaLabel>
+                <a
+                  href="https://www.linkedin.com/in/galvin-alfito-506494390/"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="group mt-3 inline-flex items-baseline gap-2 text-xl font-medium tracking-tight text-neutral-900 transition-colors duration-200 hover:text-neutral-500 sm:text-2xl"
+                >
+                  <span className="border-b border-transparent pb-0.5 transition-colors duration-200 group-hover:border-neutral-900">
+                    Galvin Alfito D
+                  </span>
+                  <span className="inline-block text-base transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:translate-x-0.5">
+                    ↗
+                  </span>
+                </a>
+              </div>
+            </div>
+          </Section>
         </div>
-      </div>
-      
-      <div className="lg:col-span-2" id="tech">
-        <TitleSummaries text="Tech Stack" observeId="tech" />
-        <TechStack />
-        <div className="mt-6 text-center">
-          <WithCursorElement
-            state={{
-              element: {
-                element: (
-                  <motion.img
-                    src={PattrickImg}
-                    alt="getting dizzy"
-                    initial={{ y: -100, opacity: 0 }}
-                    animate={{ y: 0, opacity: 0.7 }}
-                    exit={{ y: 100, opacity: 0 }}
-                    transition={{ duration: 0.4 }}
-                    className="w-[300px]"
-                  />
-                ),
-                key: 'dizzy',
-                type: 'hover' 
-              }
-            }}
-          >
-            <span className="font-pixel inline-flex items-center gap-2 text-xl text-yellow-200 lg:text-2xl">
-              And Keep Learning... 
-            </span>
-          </WithCursorElement>
-        </div>
-      </div>
-      
-      <div id="contact">
-        <TitleSummaries text="Contact" observeId="contact" />
-        <ul className="list-disc marker:text-white">
-          <Experience title="Email" sentences={['galvinalfito@gmail.com']} link="mailto:galvinalfito@gmail.com" />
-          <Experience title="Linkedin" sentences={['Galvin Alfito D']} link="https://www.linkedin.com/in/galvin-alfito-506494390/" className="mt-5" />
-        </ul>
       </div>
     </div>
   )
