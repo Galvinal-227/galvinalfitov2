@@ -121,6 +121,14 @@ const projectCategories: { title: string; key: string; projects: Project[] }[] =
         link: 'https://github.com/galvinal-227',
         liveUrl: 'https://color-generator-kappa-three.vercel.app'
       },
+      {
+        text1: 'GWD Animations',
+        text2: '2026',
+        text3: 'Frontend - React, tailwind',
+        color: '#A3195B',
+        link: 'https://github.com/galvinal-227',
+        liveUrl: 'https://gwdanimations.vercel.app'
+      },
     ]
   },
   {
