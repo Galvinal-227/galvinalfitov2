@@ -3,16 +3,25 @@
   <head>
     <meta charset="UTF-8" />
 
+    <!-- Primary SEO -->
     <title>Galvin Alfito — Full-Stack Developer</title>
 
     <meta
       name="description"
-      content="Galvin Alfito is a Full-Stack Developer from Indonesia building web applications, developer tools, and digital projects with React, Node.js, and modern web technologies."
+      content="Galvin Alfito is a Full-Stack Developer from Indonesia building web applications, developer tools, and digital experiences with React, Node.js, JavaScript, and modern web technologies."
     />
 
     <meta name="author" content="Galvin Alfito" />
-    <meta name="robots" content="index, follow" />
+    <meta
+      name="keywords"
+      content="Galvin Alfito, Full-Stack Developer, Web Developer Indonesia, React Developer, Node.js Developer, JavaScript Developer, Web Development, Developer Tools"
+    />
+
+    <meta name="robots" content="index, follow, max-image-preview:large" />
+    <meta name="googlebot" content="index, follow, max-image-preview:large" />
+
     <meta name="theme-color" content="#000000" />
+    <meta name="color-scheme" content="light dark" />
 
     <meta
       name="viewport"
@@ -25,40 +34,72 @@
       href="https://galvinalfito.my.id/"
     />
 
+    <!-- Alternate / Language -->
+    <link
+      rel="alternate"
+      hreflang="id"
+      href="https://galvinalfito.my.id/"
+    />
+
+    <link
+      rel="alternate"
+      hreflang="x-default"
+      href="https://galvinalfito.my.id/"
+    />
+
     <!-- Open Graph -->
     <meta property="og:type" content="website" />
+
     <meta
       property="og:title"
       content="Galvin Alfito — Full-Stack Developer"
     />
+
     <meta
       property="og:description"
-      content="Portfolio of Galvin Alfito, a Full-Stack Developer from Indonesia building web applications, developer tools, and digital projects."
+      content="Portfolio of Galvin Alfito, a Full-Stack Developer from Indonesia building web applications, developer tools, and digital experiences."
     />
+
     <meta
       property="og:url"
       content="https://galvinalfito.my.id/"
     />
+
     <meta
       property="og:image"
       content="https://galvinalfito.my.id/foto-profil.png"
     />
+
+    <meta
+      property="og:image:alt"
+      content="Galvin Alfito — Full-Stack Developer"
+    />
+
+    <meta property="og:image:type" content="image/png" />
     <meta property="og:site_name" content="Galvin Alfito" />
     <meta property="og:locale" content="id_ID" />
 
     <!-- Twitter / X -->
     <meta name="twitter:card" content="summary_large_image" />
+
     <meta
       name="twitter:title"
       content="Galvin Alfito — Full-Stack Developer"
     />
+
     <meta
       name="twitter:description"
-      content="Portfolio of Galvin Alfito, a Full-Stack Developer from Indonesia."
+      content="Portfolio of Galvin Alfito, a Full-Stack Developer from Indonesia building web applications, developer tools, and digital experiences."
     />
+
     <meta
       name="twitter:image"
       content="https://galvinalfito.my.id/foto-profil.png"
+    />
+
+    <meta
+      name="twitter:image:alt"
+      content="Galvin Alfito — Full-Stack Developer"
     />
 
     <!-- Favicon -->
@@ -68,10 +109,20 @@
       href="/G2.png"
     />
 
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="apple-touch-icon"
+      href="/G2.png"
+    />
 
+    <!-- Performance -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      rel="preconnect"
+      href="https://fonts.gstatic.com"
+      crossorigin
+    />
+
+    <!-- Fonts -->
     <link
       href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;500;600;700&family=League+Spartan:wght@100;200;300;400;500;600;700&family=Poppins:wght@300;400;500&family=Playfair+Display:wght@400;500;600;700;800&display=swap"
       rel="stylesheet"
@@ -86,7 +137,19 @@
         "url": "https://galvinalfito.my.id/",
         "image": "https://galvinalfito.my.id/foto-profil.png",
         "jobTitle": "Full-Stack Developer",
-        "description": "Full-Stack Developer from Indonesia building web applications, developer tools, and digital projects.",
+        "description": "Full-Stack Developer from Indonesia building web applications, developer tools, and digital experiences.",
+        "knowsAbout": [
+          "Web Development",
+          "Full-Stack Development",
+          "React",
+          "Node.js",
+          "JavaScript",
+          "TypeScript",
+          "HTML",
+          "CSS",
+          "MongoDB",
+          "Developer Tools"
+        ],
         "sameAs": [
           "https://github.com/Galvinal-227"
         ]
@@ -99,7 +162,30 @@
         "@context": "https://schema.org",
         "@type": "WebSite",
         "name": "Galvin Alfito",
-        "url": "https://galvinalfito.my.id/"
+        "alternateName": "Galvin Alfito Portfolio",
+        "url": "https://galvinalfito.my.id/",
+        "description": "Personal portfolio of Galvin Alfito, a Full-Stack Developer from Indonesia."
+      }
+    </script>
+
+    <!-- WebPage Schema -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        "name": "Galvin Alfito — Full-Stack Developer",
+        "url": "https://galvinalfito.my.id/",
+        "description": "Portfolio of Galvin Alfito, a Full-Stack Developer from Indonesia.",
+        "isPartOf": {
+          "@type": "WebSite",
+          "name": "Galvin Alfito",
+          "url": "https://galvinalfito.my.id/"
+        },
+        "about": {
+          "@type": "Person",
+          "name": "Galvin Alfito",
+          "url": "https://galvinalfito.my.id/"
+        }
       }
     </script>
   </head>
@@ -107,7 +193,10 @@
   <body>
     <div id="root"></div>
 
+    <!-- Puter -->
     <script src="https://js.puter.com/v2/"></script>
+
+    <!-- Application -->
     <script
       type="module"
       src="./src/index.tsx"
