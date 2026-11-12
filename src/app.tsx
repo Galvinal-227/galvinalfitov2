@@ -15,14 +15,37 @@ import Lottie from 'lottie-react'
 import ChatbotAnimation from '../src/assets/animation/Chatbot.json'
 import Chatbot from 'components/chatbot/Chatbot'
 
+// IMPORT BARU UNTUK SEO
+import { useTranslation } from 'lib/translations'
+import { useSeo } from 'hooks/use-seo'
+
 const Page: React.FC = () => {
   const location = useLocation()
   const { state } = useContext(StateContext)
   const containerPageRef = useRef<HTMLDivElement>(null)
+  
+  // AMBIL BAHASA AKTIF UNTUK SEO
+  const { lang } = useTranslation()
 
-  if (!state) {
-    return <div className="h-screen w-screen bg-primary"></div>
+  // LOGIKA SEO DINAMIS BERDASARKAN URL (PATH)
+  let seoTitle = 'Software Developer'
+  let seoDesc = 'Portfolio of Galvin Alfito, a Software Developer from Indonesia building web and mobile apps, developer tools, and digital experiences.'
+  
+  if (location.pathname === routes.about) {
+    seoTitle = 'About Me'
+    seoDesc = 'Learn more about Galvin Alfito, a Software Developer specializing in web and mobile applications.'
+  } else if (location.pathname === routes.summary) {
+    seoTitle = 'Summary & Resume'
+    seoDesc = 'Professional summary and experience of Galvin Alfito, Software Developer.'
   }
+
+  // PANGGIL HOOK SEO DI PALING ATAS (SEBELUM EARLY RETURN)
+  useSeo({
+    title: seoTitle,
+    description: seoDesc,
+    path: location.pathname,
+    lang: (lang || 'id') as 'id' | 'en'
+  })
 
   const removeStyleContainer = () => {
     setTimeout(() => {
@@ -32,6 +55,7 @@ const Page: React.FC = () => {
     }, 500)
   }
 
+  // PINDAHKAN USEEFFECT KE SINI AGAR TIDAK MELANGGAR RULES OF HOOKS
   useEffect(() => {
     setTimeout(() => {
       window.scrollTo(0, 0)
@@ -40,7 +64,12 @@ const Page: React.FC = () => {
 
   useEffect(() => {
     removeStyleContainer()
-  }, [state.isSplashShow, state.menuShow, location.pathname])
+  }, [state?.isSplashShow, state?.menuShow, location.pathname])
+
+  // EARLY RETURNS DILAKUKAN SETELAH SEMUA HOOKS DIPANGGIL
+  if (!state) {
+    return <div className="h-screen w-screen bg-primary"></div>
+  }
 
   if (state.isSmallDevice === undefined) {
     return <div className="h-screen w-screen bg-primary"></div>
