@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://galvinalfito.my.id/sitemap.xml
+Sitemap: https://www.galvinalfito.my.id/sitemap.xml
